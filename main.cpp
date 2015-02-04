@@ -21,8 +21,22 @@ int main() {
     std::cout << "Creating CPU" << std::endl;
     Cpu cpu(&mmu);
 
-    std::cout << "Printing code:" << std::endl;
-    cpu.printCode(0x100);
+    std::cout << "Running:" << std::endl << std::endl;
+
+    char c;
+
+    for(int i = 0; i < 10; ++i)
+    {
+        cpu.printRegisters();
+        cpu.printCode(1);
+        std::cin >> c;
+        if(c == 'q')
+            break;
+        cpu.execute();
+    }
+
+
+
 
     return 0;
 }

@@ -74,6 +74,11 @@ public:
         }
     }
 
+    unsigned short readShort(unsigned short addr)
+    {
+        return readByte(addr) | (readByte(addr+1) << 8);
+    }
+
     void writeByte(unsigned short addr, unsigned char value)
     {
         switch (0xF000 & addr)
