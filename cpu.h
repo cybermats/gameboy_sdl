@@ -5,56 +5,7 @@
 #include <stdint.h>
 #include <iostream>
 #include <iomanip>
-
-#define SIGNED_ADD_WITH_FLAGS(t1, t2, s) RESET_FLAG(ALL_FLAGS); SET_FLAG(((s ^ t1) >> 4) & C_FLAG), SET_FLAG(((s ^ t1) << 1) & H_FLAG)
-
-#define COMPUTE_CARRY_FLAGS(Term1, Term2, Sum, BitSize) \
-    RESET_FLAG(ALL_FLAGS); \
-    if(!Sum) SET_FLAG(Z_FLAG); \
-    auto val = (Sum ^ Term1 ^ Term2); \
-    auto c = (val & (1 << BitSize)) >> (BitSize - 5); \
-    auto h = val & (1 << (BitSize - 4)) >> (BitSize - 4); \
-    SET_FLAG(c | h);
-
-#define INC_REG(Reg) \
-    RESET_FLAG(Z_FLAG | H_FLAG | N_FLAG); \
-    auto v = Reg++; \
-    if(!Reg) SET_FLAG(Z_FLAG); \
-    if((v ^ Reg) & 0x10) SET_FLAG(H_FLAG);
-
-#define DEC_REG(Reg) \
-    RESET_FLAG(Z_FLAG | H_FLAG); \
-    SET_FLAG(N_FLAG); \
-    auto v = Reg--; \
-    if(!Reg) SET_FLAG(Z_FLAG); \
-    if((v ^ Reg) & 0x10) SET_FLAG(H_FLAG);
-
-#define BIT_CHECK(Reg, Bit) \
-    RESET_FLAG(N_FLAG | Z_FLAG); \
-    SET_FLAG(H_FLAG); \
-    af.b.l &= ~(((Reg & (1 << Bit)) >> Bit) << 7);
-
-#define ROTATE_LEFT_THROUGH_CARRY(Reg) \
-    unsigned char c = (af.b.l & 0x10 >> 4); /* Save carry */ \
-    af.b.l = (Reg & 0x80) >> 3; /* Set C-flag (and reset all other) */ \
-    Reg = (Reg << 1) | c; /* Rotate through carry */ \
-    if(!Reg) SET_FLAG(Z_FLAG);
-
-#define ROTATE_LEFT(Reg) \
-    af.b.l = (Reg & 0x80) >> 3; /* Set carry (and reset all other) */ \
-    Reg = (Reg << 1) | (Reg >> 7); /* Rotate */ \
-    if(!Reg) SET_FLAG(Z_FLAG);
-
-#define ROTATE_RIGHT_THROUGH_CARRY(Reg) \
-    unsigned char c = (af.b.l & 0x10 << 3); /* Save carry */ \
-    af.b.l = (Reg & 0x01) << 4; /* Set C-flag (and reset all other) */ \
-    Reg = (Reg >> 1) | c; /* Rotate through carry */ \
-    if(!Reg) SET_FLAG(Z_FLAG);
-
-#define ROTATE_RIGHT(Reg) \
-    af.b.l = (Reg & 0x01) << 4; /* Set carry (and reset all other) */ \
-    Reg = (Reg >> 1) | (Reg << 7); /* Rotate */ \
-    if(!Reg) SET_FLAG(Z_FLAG);
+#include <exception>
 
 
 #define Z_FLAG 0x80 // Zero
@@ -106,60 +57,14 @@ public:
         (this->*cbopmap[opcode].func)();
     }
 
-    void printCode(size_t numCmds)
-    {
-        auto localPc = pc;
-        for(size_t i = 0; i < numCmds; ++i)
-        {
-            auto opcode = _mbc->readByte(localPc);
-            auto opitem = opmap[opcode];
-            bool cb = opcode == 0xcb;
-            if(cb)
-            {
-                opcode = _mbc->readByte(localPc+1);
-                opitem = cbopmap[opcode];
-            }
-            std::cout << std::hex ;
-            std::cout
-                    << "[" << ((opitem.func != &Cpu::NOP) ? "X" : " ") << "] "
-                    << "[" << std::setfill('0') << std::setw(4) << localPc << "] "
-                    << "[" << std::setfill('0') << std::setw(2) << (int)opcode << "] "
-                    << opitem.name << " ";
-            for(auto j = 1; j < opitem.size; ++j)
-                std::cout << std::setfill('0') << std::setw(2) << (int)_mbc->readByte(localPc + j) << " ";
-            std::cout << std::endl;
-            localPc += opitem.size;
-            if(cb)
-                localPc++;
-        }
+    void printCode(size_t numCmds);
 
-    }
-
-    void printRegisters()
-    {
-        std::cout << " A ZNHC  BC   DE   HL   SP" << std::endl;
-        std::cout << std::hex
-                << std::setfill('0') << std::setw(2)
-                << (int)af.b.h
-                << " "
-                << ((af.b.l & Z_FLAG)?"1":"0")
-                << ((af.b.l & N_FLAG)?"1":"0")
-                << ((af.b.l & H_FLAG)?"1":"0")
-                << ((af.b.l & C_FLAG)?"1":"0")
-                << " "
-                << std::setfill('0') << std::setw(4)
-                << bc.w << " "
-                << std::setfill('0') << std::setw(4)
-                << de.w << " "
-                << std::setfill('0') << std::setw(4)
-                << hl.w << " "
-                << std::setfill('0') << std::setw(4)
-                << sp
-                << std::endl;
-    }
+    void printStep();
 
 
-private:
+    uint16_t getPc() const { return pc; }
+
+//private:
 
     void decode();
 
@@ -173,6 +78,9 @@ private:
     z80Reg bc;
     z80Reg de;
     z80Reg hl;
+
+    bool ime;
+    bool halt;
 
     // Clock
     uint64_t m;
@@ -292,6 +200,8 @@ private:
     void LDIOCA();
 
     void LDHLSPn();
+
+    void LDmmSP();
 
     void SWAPr_b();
     void SWAPr_c();
@@ -706,6 +616,18 @@ private:
     void CCF();
     void SCF();
 
+    /* Pushs and pops */
+    void PUSHBC();
+    void PUSHDE();
+    void PUSHHL();
+    void PUSHAF();
+
+    void POPBC();
+    void POPDE();
+    void POPHL();
+    void POPAF();
+
+
     /* Jumps */
 
     void JPnn();
@@ -720,6 +642,39 @@ private:
     void JRZn();
     void JRNCn();
     void JRCn();
+
+    void CALLnn();
+    void CALLNZnn();
+    void CALLZnn();
+    void CALLNCnn();
+    void CALLCnn();
+
+    void RET();
+    void RETI();
+    void RETNZ();
+    void RETZ();
+    void RETNC();
+    void RETC();
+
+    void RST00();
+    void RST08();
+    void RST10();
+    void RST18();
+    void RST20();
+    void RST28();
+    void RST30();
+    void RST38();
+
+    void STOP();
+    void HALT();
+
+    void DI();
+    void EI();
+
+    void Unimpl() {
+        std::cout << "Unimplemented function" << std::endl;
+        throw std::exception();
+    }
 
     static opinfo_t opmap[];
     static opinfo_t cbopmap[];

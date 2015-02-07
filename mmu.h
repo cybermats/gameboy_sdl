@@ -162,6 +162,15 @@ public:
         }
     }
 
+    void writeShort(unsigned short addr, unsigned short value)
+    {
+        unsigned char first = (unsigned char)(value & 0xFF);
+        unsigned char second = (unsigned char)((value >> 8) & 0xFF);
+        writeByte(addr, first);
+        writeByte(addr+1, second);
+    }
+
+
 private:
     IMBC* _mbc;
 

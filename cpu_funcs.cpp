@@ -1,4 +1,56 @@
 #include "cpu.h"
+#include <iostream>
+
+#define SIGNED_ADD_WITH_FLAGS(t1, t2, s) RESET_FLAG(ALL_FLAGS); SET_FLAG(((s ^ t1) >> 4) & C_FLAG), SET_FLAG(((s ^ t1) << 1) & H_FLAG)
+
+#define COMPUTE_CARRY_FLAGS(Term1, Term2, Sum, BitSize) \
+    RESET_FLAG(ALL_FLAGS); \
+    if(!Sum) SET_FLAG(Z_FLAG); \
+    auto val = (Sum ^ Term1 ^ Term2); \
+    auto c = (val & (1 << BitSize)) >> (BitSize - 5); \
+    auto h = val & (1 << (BitSize - 4)) >> (BitSize - 4); \
+    SET_FLAG(c | h);
+
+#define INC_REG(Reg) \
+    RESET_FLAG(Z_FLAG | H_FLAG | N_FLAG); \
+    auto v = Reg++; \
+    if(!Reg) SET_FLAG(Z_FLAG); \
+    if((v ^ Reg) & 0x10) SET_FLAG(H_FLAG);
+
+#define DEC_REG(Reg) \
+    RESET_FLAG(Z_FLAG | H_FLAG); \
+    SET_FLAG(N_FLAG); \
+    auto v = Reg--; \
+    if(!Reg) SET_FLAG(Z_FLAG); \
+    if((v ^ Reg) & 0x10) SET_FLAG(H_FLAG);
+
+#define BIT_CHECK(Reg, Bit) \
+    RESET_FLAG(N_FLAG); \
+    SET_FLAG(H_FLAG | Z_FLAG); \
+    af.b.l &= ~(((Reg & (1 << Bit)) >> Bit) << 7);
+
+#define ROTATE_LEFT_THROUGH_CARRY(Reg) \
+    unsigned char c = (af.b.l & 0x10 >> 4); /* Save carry */ \
+    af.b.l = (Reg & 0x80) >> 3; /* Set C-flag (and reset all other) */ \
+    Reg = (Reg << 1) | c; /* Rotate through carry */ \
+    if(!Reg) SET_FLAG(Z_FLAG);
+
+#define ROTATE_LEFT(Reg) \
+    af.b.l = (Reg & 0x80) >> 3; /* Set carry (and reset all other) */ \
+    Reg = (Reg << 1) | (Reg >> 7); /* Rotate */ \
+    if(!Reg) SET_FLAG(Z_FLAG);
+
+#define ROTATE_RIGHT_THROUGH_CARRY(Reg) \
+    unsigned char c = (af.b.l & 0x10 << 3); /* Save carry */ \
+    af.b.l = (Reg & 0x01) << 4; /* Set C-flag (and reset all other) */ \
+    Reg = (Reg >> 1) | c; /* Rotate through carry */ \
+    if(!Reg) SET_FLAG(Z_FLAG);
+
+#define ROTATE_RIGHT(Reg) \
+    af.b.l = (Reg & 0x01) << 4; /* Set carry (and reset all other) */ \
+    Reg = (Reg >> 1) | (Reg << 7); /* Rotate */ \
+    if(!Reg) SET_FLAG(Z_FLAG);
+
 
 
 void Cpu::LDrr_bb() { bc.b.h = bc.b.h; m = 1; }
@@ -105,6 +157,8 @@ void Cpu::LDIOCA() { _mbc->writeByte(0xFF00 + bc.b.l, af.b.h); m = 2; }
 
 void Cpu::LDHLSPn() { char c = (char)_mbc->readByte(pc++); int s = sp + c; hl.w = s; SIGNED_ADD_WITH_FLAGS(sp, c, s); m = 3; }
 
+void Cpu::LDmmSP() { auto mm = _mbc->readShort(pc++); pc++; _mbc->writeShort(mm, sp); m = 5; }
+
 void Cpu::SWAPr_b() { auto v = bc.b.h; bc.b.h = ((v & 0xF0) >> 4) | ((v & 0x0F) << 4); m = 2; RESET_FLAG(ALL_FLAGS); if(!v) SET_FLAG(Z_FLAG); }
 void Cpu::SWAPr_c() { auto v = bc.b.l; bc.b.l = ((v & 0xF0) >> 4) | ((v & 0x0F) << 4); m = 2; RESET_FLAG(ALL_FLAGS); if(!v) SET_FLAG(Z_FLAG); }
 void Cpu::SWAPr_d() { auto v = de.b.h; de.b.h = ((v & 0xF0) >> 4) | ((v & 0x0F) << 4); m = 2; RESET_FLAG(ALL_FLAGS); if(!v) SET_FLAG(Z_FLAG); }
@@ -114,7 +168,7 @@ void Cpu::SWAPr_l() { auto v = hl.b.l; hl.b.l = ((v & 0xF0) >> 4) | ((v & 0x0F) 
 void Cpu::SWAPr_a() { auto v = af.b.h; af.b.h = ((v & 0xF0) >> 4) | ((v & 0x0F) << 4); m = 2; RESET_FLAG(ALL_FLAGS); if(!v) SET_FLAG(Z_FLAG); }
 void Cpu::SWAPHL() { auto v = _mbc->readByte(hl.w); v = ((v & 0xF0) >> 4) | ((v & 0x0F) << 4); _mbc->writeByte(hl.w, v); m = 4; RESET_FLAG(ALL_FLAGS); if(!v) SET_FLAG(Z_FLAG); }
 
-// Data processing
+/* Data processing */
 
 void Cpu::ADDr_b() { unsigned short a = af.b.h; af.b.h += bc.b.h; COMPUTE_CARRY_FLAGS(a, bc.b.h, af.b.h, 8); m = 1; }
 void Cpu::ADDr_c() { unsigned short a = af.b.h; af.b.h += bc.b.l; COMPUTE_CARRY_FLAGS(a, bc.b.l, af.b.h, 8); m = 1; }
@@ -518,6 +572,19 @@ void Cpu::CPL() { af.b.h = ~af.b.h; SET_FLAG(N_FLAG | H_FLAG); m = 1; }
 void Cpu::CCF() { af.b.l ^= C_FLAG; RESET_FLAG(N_FLAG | H_FLAG); m = 1; }
 void Cpu::SCF() { SET_FLAG(C_FLAG); RESET_FLAG(N_FLAG | H_FLAG); m = 1; }
 
+/* Pushs and pops */
+
+void Cpu::PUSHBC() { sp-=2; bc.w = _mbc->readShort(sp); m = 4;}
+void Cpu::PUSHDE() { sp-=2; de.w = _mbc->readShort(sp); m = 4;}
+void Cpu::PUSHHL() { sp-=2; hl.w = _mbc->readShort(sp); m = 4;}
+void Cpu::PUSHAF() { sp-=2; af.w = _mbc->readShort(sp); m = 4;}
+
+void Cpu::POPBC() { _mbc->writeShort(sp, bc.w); sp += 2; m = 3;}
+void Cpu::POPDE() { _mbc->writeShort(sp, de.w); sp += 2; m = 3;}
+void Cpu::POPHL() { _mbc->writeShort(sp, hl.w); sp += 2; m = 3;}
+void Cpu::POPAF() { _mbc->writeShort(sp, af.w); sp += 2; m = 3;}
+
+
 /* Jumps */
 
 void Cpu::JPnn() { pc = _mbc->readShort(pc++); pc++; m = 3; }
@@ -532,3 +599,30 @@ void Cpu::JRNZn() { auto n = (char)_mbc->readByte(pc++); if(!(af.b.l & Z_FLAG)) 
 void Cpu::JRZn() { auto n = (char)_mbc->readByte(pc++); if(af.b.l & Z_FLAG) pc += n; m = 3; }
 void Cpu::JRNCn() { auto n = (char)_mbc->readByte(pc++); if(!(af.b.l & C_FLAG)) pc += n; m = 3; }
 void Cpu::JRCn() { auto n = (char)_mbc->readByte(pc++); if(af.b.l & C_FLAG) pc += n; m = 3; }
+
+void Cpu::CALLnn() { auto nn = _mbc->readShort(pc++); pc++; sp -= 2; _mbc->writeShort(sp, pc); pc = nn; m = 3; }
+void Cpu::CALLNZnn() { auto nn = _mbc->readShort(pc++); pc++; if(!(af.b.l & Z_FLAG)) { sp -= 2; _mbc->writeShort(sp, pc); pc = nn; } m = 3; }
+void Cpu::CALLZnn() { auto nn = _mbc->readShort(pc++); pc++; if(af.b.l & Z_FLAG) { sp -= 2; _mbc->writeShort(sp, pc); pc = nn; } m = 3; }
+void Cpu::CALLNCnn() { auto nn = _mbc->readShort(pc++); pc++; if(!(af.b.l & C_FLAG)) { sp -= 2; _mbc->writeShort(sp, pc); pc = nn; } m = 3; }
+void Cpu::CALLCnn() { auto nn = _mbc->readShort(pc++); pc++; if(af.b.l & C_FLAG) { sp -= 2; _mbc->writeShort(sp, pc); pc = nn; } m = 3; }
+
+void Cpu::RET() { pc = _mbc->readShort(sp); sp += 2; m = 2; }
+void Cpu::RETI() { ime = true; pc = _mbc->readShort(sp); sp += 2; m = 2; }
+void Cpu::RETNZ() { if(!(af.b.l & Z_FLAG)) { pc = _mbc->readShort(sp); sp += 2; } m = 2; }
+void Cpu::RETZ() { if(af.b.l & Z_FLAG) { pc = _mbc->readShort(sp); sp += 2; } m = 2; }
+void Cpu::RETNC() { if(!(af.b.l & C_FLAG)) { pc = _mbc->readShort(sp); sp += 2; } m = 2; }
+void Cpu::RETC() { if(af.b.l & C_FLAG) { pc = _mbc->readShort(sp); sp += 2; } m = 2; }
+
+void Cpu::RST00() { sp -= 2; _mbc->writeShort(sp, pc); pc = 0x00; m = 8; }
+void Cpu::RST08() { sp -= 2; _mbc->writeShort(sp, pc); pc = 0x08; m = 8; }
+void Cpu::RST10() { sp -= 2; _mbc->writeShort(sp, pc); pc = 0x10; m = 8; }
+void Cpu::RST18() { sp -= 2; _mbc->writeShort(sp, pc); pc = 0x18; m = 8; }
+void Cpu::RST20() { sp -= 2; _mbc->writeShort(sp, pc); pc = 0x20; m = 8; }
+void Cpu::RST28() { sp -= 2; _mbc->writeShort(sp, pc); pc = 0x28; m = 8; }
+void Cpu::RST30() { sp -= 2; _mbc->writeShort(sp, pc); pc = 0x30; m = 8; }
+void Cpu::RST38() { sp -= 2; _mbc->writeShort(sp, pc); pc = 0x38; m = 8; }
+
+void Cpu::STOP() { halt = true; pc++; m = 1; }
+void Cpu::HALT() { halt = true; m = 1; }
+void Cpu::DI() { ime = false; m = 1; }
+void Cpu::EI() { ime = true; m = 1; }
