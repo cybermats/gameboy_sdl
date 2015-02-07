@@ -3,5 +3,5 @@ project(gameboy)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-set(SOURCE_FILES main.cpp mmu.cpp cartridge.cpp cpu.cpp)
+set(SOURCE_FILES main.cpp mmu.cpp cartridge.cpp cpu.cpp cpu_funcs.cpp cpu_maps.cpp)
 add_executable(gameboy ${SOURCE_FILES})
