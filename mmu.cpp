@@ -1,14 +1,15 @@
 #include "mmu.h"
+#include "gpu.h"
 
 MMU::MMU(IMBC* mbc)
         : _mbc(mbc)
+        , _gpu(nullptr)
         , _romBank0(nullptr)
         , _romBankN(nullptr)
         , _vram(0x2000, 0)
         , _eram(nullptr)
         , _wramBank0(nullptr)
         , _wramBankN(nullptr)
-        , _oam(0x9f, 0)
         , _hram(0x7e, 0)
         , _ier(0x0)
         , _workRam(0x2000, 0)
@@ -21,6 +22,205 @@ MMU::MMU(IMBC* mbc)
     _wramBank0 = &_workRam[0];
     _wramBankN = &_workRam[0x1000];
 }
+
+unsigned char MMU::readByte(unsigned short addr)
+{
+    switch(addr & 0xF000)
+    {
+        // ROM Bank 0
+        case 0x000:
+        {
+            if(_isBios)
+            {
+                if(addr < 0x100)
+                    return _bios[addr];
+                else if(addr == 0x100)
+                    _isBios = false;
+            }
+            return _romBank0[addr];
+        }
+        case 0x1000:
+        case 0x2000:
+        case 0x3000:
+            return _romBank0[addr];
+
+            // ROM Bank N
+        case 0x4000:
+        case 0x5000:
+        case 0x6000:
+        case 0x7000:
+            return _romBankN[0x3FFF & addr];
+
+            // Video RAM
+        case 0x8000:
+        case 0x9000:
+            assert(_gpu);
+            return _gpu->readByte(addr);
+            // External RAM
+        case 0xA000:
+        case 0xB000:
+            return _eram[0x1FFF & addr];
+
+            // Working RAM
+        case 0xC000:
+            return _wramBank0[0x0FFF & addr];
+        case 0xD000:
+            return _wramBankN[0x0FFF & addr];
+
+            // Working RAM ECHO
+        case 0xE000:
+            return _wramBank0[0x0FFF & addr];
+        case 0xF000:
+        {
+            if(addr < 0xFE00) // ECHO 0xF000 - 0xFDFF
+                return _wramBankN[0x0FFF & addr];
+            if(addr < 0xFEA0) { // OAM  0xFE00 - 0xFE9F
+                assert(_gpu);
+                return _gpu->readOAM(addr);
+            }
+            if(addr < 0xFF00) // Unusable 0xFEA0 - 0xFEFF
+                return 0;
+            if(addr < 0xFF80) // I/O 0xFF00 - 0xFF7F
+                return readIO(addr);
+            if(addr < 0xFFFF) // HRAM 0xFF80 - 0xFFFE
+                return _hram[0x007F & addr];
+            return _ier; // Interrupts Enable Register
+        }
+        default:
+            return 0; // Should never happen
+    }
+}
+
+void MMU::writeByte(unsigned short addr, unsigned char value)
+{
+    switch (0xF000 & addr)
+    {
+        // ROM Bank 0
+        case 0x0000:
+        case 0x1000:
+        case 0x2000:
+        case 0x3000:
+
+            // ROM Bank N
+        case 0x4000:
+        case 0x5000:
+        case 0x6000:
+        case 0x7000:
+            _mbc->update(addr, value);
+            _romBank0 = _mbc->getRomBank0();
+            _romBankN = _mbc->getRomBankN();
+            _eram = _mbc->getRamBank();
+            return;
+
+            // Video RAM
+        case 0x8000:
+        case 0x9000:
+            assert(_gpu);
+            _gpu->writeByte(addr, value);
+            return;
+
+            // External RAM
+        case 0xA000:
+        case 0xB000:
+            _eram[0x1FFF & addr] = value;
+            return;
+
+            // Working RAM Bank 0
+        case 0xC000:
+            _wramBank0[0x0FFF & addr] = value;
+            return;
+
+            // Working RAM Bank N
+        case 0xD000:
+            _wramBankN[0x0FFF & addr] = value;
+            return;
+
+            // Working RAM ECHO
+        case 0xE000:
+            _wramBank0[0x0FFF & addr] = value;
+            return;
+
+            // Other
+        case 0xF000:
+        {
+            if(addr < 0xFE00) // ECHO 0xF000 - 0xFDFF
+            {
+                _wramBankN[0x0FFF & addr] = value;
+                return;
+            }
+            if(addr < 0xFEA0) // OAM  0xFE00 - 0xFE9F
+            {
+                assert(_gpu);
+                _gpu->writeOAM(addr, value);
+                return;
+            }
+            if(addr < 0xFF00) // Unusable 0xFEA0 - 0xFEFF
+                return;
+            if(addr < 0xFF80) // I/O 0xFF00 - 0xFF7F
+            {
+                writeIO(addr, value);
+                return;
+            }
+            if(addr < 0xFFFF) // HRAM 0xFF80 - 0xFFFE
+            {
+                _hram[0x007F & addr] = value;
+                return;
+            }
+            _ier = value; // Interrupts Enable Register
+            return;
+        }
+        default:
+            assert(false);
+            return;
+    }
+}
+
+unsigned char MMU::readIO(unsigned short addr)
+{
+    if(addr == 0xFF00) // Keyboard
+        return 0; // TODO
+    if(addr < 0xFF04) // Serial port
+        return 0;
+    if(addr < 0xFF08) // Timer
+        return 0; // TODO
+    if(addr == 0xFF0F) // Interrupt flags
+        return _if; // TODO
+    if(addr < 0xFF40) // Sound
+        return 0; // Ignore?
+    if(addr < 0xFF4C) {
+        assert(_gpu);
+        return _gpu->readIO(addr);
+    }
+    return 0;
+}
+
+void MMU::writeIO(unsigned short addr, unsigned char value)
+{
+    if(addr == 0xFF00) // Keyboard
+        return; // TODO:
+    if(addr < 0xFF04) // Serial port
+        return;
+    if(addr < 0xFF08) // Timer
+        return; // TODO
+    if(addr == 0xFF0F) { // Interrupt flags
+        _if = value;
+        return; // TODO
+    }
+    if(addr < 0xFF40) // Sound
+        return; // Ignore?
+    if(addr < 0xFF4C) {
+        assert(_gpu);
+        _gpu->writeIO(addr, value);
+    }
+    return;
+}
+
+
+void MMU::setGpu(Gpu* gpu)
+{
+    _gpu = gpu;
+}
+
 
 
 

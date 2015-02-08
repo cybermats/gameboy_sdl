@@ -23,7 +23,8 @@ private:
     using z80Reg = union {
         uint16_t w;
         struct {
-            uint8_t l, h;
+            uint8_t l;
+            uint8_t h;
         } b;
     };
 public:

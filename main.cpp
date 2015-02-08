@@ -3,6 +3,7 @@
 
 #include "cpu.h"
 #include "cartridge.h"
+#include "gpu.h"
 
 using namespace std;
 
@@ -18,6 +19,9 @@ int main() {
     auto mbc = cartridge.getMBC();
     std::cout << "Creating MMU" << std::endl;
     MMU mmu(mbc.get());
+    Gpu gpu(&mmu);
+    mmu.setGpu(&gpu);
+
     std::cout << "Creating CPU" << std::endl;
     Cpu cpu(&mmu);
 
@@ -46,6 +50,7 @@ int main() {
                 for(int i = 0; i < p; ++i)
                 {
                     cpu.execute();
+                    gpu.checkline(cpu.m);
                     cpu.printStep();
                 }
                 break;
@@ -63,8 +68,11 @@ int main() {
                 while(cpu.getPc() != goal)
                 {
                     cpu.execute();
-                    cpu.printStep();
+                    gpu.checkline(cpu.m);
+//                    cpu.printStep();
                 }
+                std::cout << "Finished." << std::endl;
+                break;
 
             case 'h':
             case '?':

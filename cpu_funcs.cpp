@@ -574,15 +574,15 @@ void Cpu::SCF() { SET_FLAG(C_FLAG); RESET_FLAG(N_FLAG | H_FLAG); m = 1; }
 
 /* Pushs and pops */
 
-void Cpu::PUSHBC() { sp-=2; bc.w = _mbc->readShort(sp); m = 4;}
-void Cpu::PUSHDE() { sp-=2; de.w = _mbc->readShort(sp); m = 4;}
-void Cpu::PUSHHL() { sp-=2; hl.w = _mbc->readShort(sp); m = 4;}
-void Cpu::PUSHAF() { sp-=2; af.w = _mbc->readShort(sp); m = 4;}
+void Cpu::PUSHBC() { sp -= 2; _mbc->writeShort(sp, bc.w); m = 4;}
+void Cpu::PUSHDE() { sp -= 2; _mbc->writeShort(sp, de.w); m = 4;}
+void Cpu::PUSHHL() { sp -= 2; _mbc->writeShort(sp, hl.w); m = 4;}
+void Cpu::PUSHAF() { sp -= 2; _mbc->writeShort(sp, af.w); m = 4;}
 
-void Cpu::POPBC() { _mbc->writeShort(sp, bc.w); sp += 2; m = 3;}
-void Cpu::POPDE() { _mbc->writeShort(sp, de.w); sp += 2; m = 3;}
-void Cpu::POPHL() { _mbc->writeShort(sp, hl.w); sp += 2; m = 3;}
-void Cpu::POPAF() { _mbc->writeShort(sp, af.w); sp += 2; m = 3;}
+void Cpu::POPBC() { bc.w = _mbc->readShort(sp); sp+=2; m = 3;}
+void Cpu::POPDE() { de.w = _mbc->readShort(sp); sp+=2; m = 3;}
+void Cpu::POPHL() { hl.w = _mbc->readShort(sp); sp+=2; m = 3;}
+void Cpu::POPAF() { af.w = _mbc->readShort(sp); sp+=2; m = 3;}
 
 
 /* Jumps */
