@@ -4,15 +4,22 @@
 #include "cpu.h"
 #include "cartridge.h"
 #include "gpu.h"
+#include "gbu.h"
+#include "gbu_sdl_wrapper.h"
 
 using namespace std;
 
 int main() {
-    cout << hex << "Hello, World!" << endl;
-
+    cout << std::setfill('0') << std::setw(4) << hex << "Hello, World!" << endl;
 
     const char* filename = "/Users/mats/Documents/Code/gameboyemu/roms/Super Mario Land.gb";
 
+    Gbu gbu(filename);
+    GbuSdlWrapper wrapper(&gbu);
+    wrapper.mainloop();
+
+
+/*
     std::cout << "Creating cartridge" << std::endl;
     Cartridge cartridge(filename);
     std::cout << "Creating MBC" << std::endl;
@@ -85,5 +92,6 @@ int main() {
                 break;
         }
     }
+*/
 }
 

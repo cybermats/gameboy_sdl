@@ -9,7 +9,7 @@ Gpu::Gpu(MMU* mmu)
 , _paletteObj0(4, 255)
 , _paletteObj1(4, 255)
   , _tilemap(512, std::vector<std::vector<uint8_t>>(8, std::vector<uint8_t>(8, 0)))
-, _screenData(160*144*4, 255)
+, _screenData(160*144, 255)
 , _oam(0x9f, 0)
 , _currline(0)
 , _currscan(0)
@@ -26,7 +26,7 @@ Gpu::Gpu(MMU* mmu)
 , _spriteData(40)
 , _bgtilebase(0x0000)
 , _bgmapbase(0x1800)
-
+, _hasImage(false)
 {}
 
 
@@ -41,18 +41,16 @@ void Gpu::checkline(uint64_t clockticks)
             {
                 // End of H Blank for last line. Render screen.
                 if(_currline == 143) {
-                    std::cout << "Change to linemode 1" << std::endl;
                     _linemode = 1;
                     renderimage();
                     _mmu->setIF(0x1);
                 }
                 else {
-                    std::cout << "Change to linemode 2" << std::endl;
                     _linemode = 2;
                 }
                 _modeclocks = 0;
                 _currline++;
-                _currscan +=640;
+                _currscan +=160;
             }
             break;
         // In VBlank
@@ -62,7 +60,7 @@ void Gpu::checkline(uint64_t clockticks)
                 _currline++;
                 if (_currline > 153) {
                     _currline = 0;
-                    std::cout << "Change to linemode 2" << std::endl;
+                    _currscan = 0;
                     _linemode = 2;
                 }
             }
@@ -72,7 +70,6 @@ void Gpu::checkline(uint64_t clockticks)
             if(_modeclocks >= 20)
             {
                 _modeclocks = 0;
-                std::cout << "Change to linemode 3" << std::endl;
                 _linemode = 3;
             }
             break;
@@ -81,42 +78,44 @@ void Gpu::checkline(uint64_t clockticks)
             if(_modeclocks >= 43)
             {
                 _modeclocks = 0;
-                std::cout << "Change to linemode 0" << std::endl;
                 _linemode = 0;
                 if(_lcdOn)
                 {
                     if(_bgOn)
                     {
-                        auto linebase = _currscan;
+                        size_t linebase = _currscan;
                         auto mapbase = _bgmapbase + ((((_currline + _yscrl)&255)>>3)<<5);
-                        auto y = (_currline + _yscrl)&7;
-                        auto x = _xscrl &7;
-                        auto t = (_xscrl >>3)&31;
+                        uint8_t y = (_currline + _yscrl)&7;
+                        uint8_t x = _xscrl &7;
+                        uint8_t t = (_xscrl >>3)&31;
                         uint8_t w=160;
                         if(_bgtilebase)
                         {
-                            uint8_t tile = _vram[mapbase+t];
+                            uint8_t tile = _vram.at(mapbase+t);
                             if(tile<128) tile=256+tile;
-                            auto& tilerow = _tilemap[tile][y];
+                            auto& tilerow = _tilemap.at(tile).at(y);
                             do
                             {
-                                _scanrow[160-x] = tilerow[x];
-                                _screenData[linebase+3] = _paletteBg[tilerow[x]];
+                                _scanrow.at(159-x) = tilerow.at(x);
+                                assert(linebase < _screenData.size());
+                                _screenData.at(linebase) = _paletteBg.at(tilerow.at(x));
                                 x++;
-                                if(x==8) { t=(t+1)&31; x=0; tile=_vram[mapbase+t]; if(tile<128) tile=256+tile; tilerow = _tilemap[tile][y]; }
-                                linebase+=4;
+                                if(x==8) { t=(t+1)&31; x=0; tile=_vram.at(mapbase+t); if(tile<128) tile=256+tile; tilerow = _tilemap.at(tile).at(y); }
+                                linebase+=1;
                             } while(--w);
                         }
                         else
                         {
-                            auto& tilerow=_tilemap[_vram[mapbase+t]][y];
+                            auto& tilerow=_tilemap.at(_vram.at(mapbase+t)).at(y);
                             do
                             {
-                                _scanrow[160-x] = tilerow[x];
-                                _screenData[linebase+3] = _paletteBg[tilerow[x]];
+                                auto tmp = tilerow.at(x);
+                                _scanrow.at(159-x) = tmp;
+                                assert(linebase < _screenData.size());
+                                _screenData.at(linebase) = _paletteBg.at(tilerow.at(x));
                                 x++;
-                                if(x==8) { t=(t+1)&31; x=0; tilerow=_tilemap[_vram[mapbase+t]][y]; }
-                                linebase+=4;
+                                if(x==8) { t=(t+1)&31; x=0; tilerow=_tilemap.at(_vram.at(mapbase+t)).at(y); }
+                                linebase+=1;
                             } while(--w);
                         }
                     }
@@ -126,16 +125,16 @@ void Gpu::checkline(uint64_t clockticks)
                         std::vector<uint8_t> tilerow;
                         std::vector<uint8_t> pal;
                         uint8_t x;
-                        auto linebase = _currscan;
+                        size_t linebase = _currscan;
                         for(auto i=0; i<40; i++)
                         {
-                            auto& obj = _spriteData[i];
+                            auto& obj = _spriteData.at(i);
                             if(obj.y <= _currline && (obj.y+8) > _currline)
                             {
                                 if(obj.flags.bits.yFlip)
-                                    tilerow = _tilemap[obj.patternNum][7-(_currline -obj.y)];
+                                    tilerow = _tilemap.at(obj.patternNum).at(7-(_currline -obj.y));
                                 else
-                                    tilerow = _tilemap[obj.patternNum][_currline -obj.y];
+                                    tilerow = _tilemap.at(obj.patternNum).at(_currline -obj.y);
 
                                 if(obj.flags.bits.paletteNum) pal=_paletteObj1;
                                 else pal=_paletteObj0;
@@ -147,12 +146,12 @@ void Gpu::checkline(uint64_t clockticks)
                                     {
                                         if(obj.x+x >=0 && obj.x+x < 160)
                                         {
-                                            if(tilerow[7-x] && (obj.flags.bits.prio || !_scanrow[x]))
+                                            if(tilerow.at(7-x) && (obj.flags.bits.prio || !_scanrow.at(x)))
                                             {
-                                                _screenData[linebase+3] = pal[tilerow[7-x]];
+                                                _screenData.at(linebase) = pal.at(tilerow.at(7-x));
                                             }
                                         }
-                                        linebase+=4;
+                                        linebase+=1;
                                     }
                                 }
                                 else
@@ -161,12 +160,12 @@ void Gpu::checkline(uint64_t clockticks)
                                     {
                                         if(obj.x+x >=0 && obj.x+x < 160)
                                         {
-                                            if(tilerow[x] && (obj.flags.bits.prio || !_scanrow[x]))
+                                            if(tilerow.at(x) && (obj.flags.bits.prio || !_scanrow.at(x)))
                                             {
-                                                _screenData[linebase+3] = pal[tilerow[x]];
+                                                _screenData.at(linebase) = pal.at(tilerow.at(x));
                                             }
                                         }
-                                        linebase+=4;
+                                        linebase+=1;
                                     }
                                 }
                                 cnt++; if(cnt>10) break;
@@ -183,7 +182,7 @@ void Gpu::checkline(uint64_t clockticks)
 void Gpu::writeIO(unsigned short addr, unsigned char value)
 {
     auto gaddr = addr - 0xFF40;
-    _regs[gaddr] = value;
+    _regs.at(gaddr) = value;
     switch(gaddr)
     {
         case 0:
@@ -211,7 +210,7 @@ void Gpu::writeIO(unsigned short addr, unsigned char value)
             for(auto i=0; i<160; i++)
             {
                 auto v = _mmu->readByte((value<<8)+i);
-                _oam[i] = v;
+                _oam.at(i) = v;
                 updateOAM(0xFE00+i, v);
             }
             break;
@@ -222,10 +221,10 @@ void Gpu::writeIO(unsigned short addr, unsigned char value)
             {
                 switch((value>>(i*2))&3)
                 {
-                    case 0: _paletteBg[i] = 255; break;
-                    case 1: _paletteBg[i] = 192; break;
-                    case 2: _paletteBg[i] = 96; break;
-                    case 3: _paletteBg[i] = 0; break;
+                    case 0: _paletteBg.at(i) = 255; break;
+                    case 1: _paletteBg.at(i) = 192; break;
+                    case 2: _paletteBg.at(i) = 96; break;
+                    case 3: _paletteBg.at(i) = 0; break;
                 }
             }
             break;
@@ -236,10 +235,10 @@ void Gpu::writeIO(unsigned short addr, unsigned char value)
             {
                 switch((value>>(i*2))&3)
                 {
-                    case 0: _paletteObj0[i] = 255; break;
-                    case 1: _paletteObj0[i] = 192; break;
-                    case 2: _paletteObj0[i] = 96; break;
-                    case 3: _paletteObj0[i] = 0; break;
+                    case 0: _paletteObj0.at(i) = 255; break;
+                    case 1: _paletteObj0.at(i) = 192; break;
+                    case 2: _paletteObj0.at(i) = 96; break;
+                    case 3: _paletteObj0.at(i) = 0; break;
                 }
             }
             break;
@@ -250,10 +249,10 @@ void Gpu::writeIO(unsigned short addr, unsigned char value)
             {
                 switch((value>>(i*2))&3)
                 {
-                    case 0: _paletteObj1[i] = 255; break;
-                    case 1: _paletteObj1[i] = 192; break;
-                    case 2: _paletteObj1[i] = 96; break;
-                    case 3: _paletteObj1[i] = 0; break;
+                    case 0: _paletteObj1.at(i) = 255; break;
+                    case 1: _paletteObj1.at(i) = 192; break;
+                    case 2: _paletteObj1.at(i) = 96; break;
+                    case 3: _paletteObj1.at(i) = 0; break;
                 }
             }
             break;

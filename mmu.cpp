@@ -10,7 +10,7 @@ MMU::MMU(IMBC* mbc)
         , _eram(nullptr)
         , _wramBank0(nullptr)
         , _wramBankN(nullptr)
-        , _hram(0x7e, 0)
+        , _hram(0x7f, 0)
         , _ier(0x0)
         , _workRam(0x2000, 0)
         , _isBios(true)
@@ -19,8 +19,8 @@ MMU::MMU(IMBC* mbc)
     _romBankN = _mbc->getRomBankN();
     _eram = _mbc->getRamBank();
 
-    _wramBank0 = &_workRam[0];
-    _wramBankN = &_workRam[0x1000];
+    _wramBank0 = &_workRam.at(0);
+    _wramBankN = &_workRam.at(0x1000);
 }
 
 unsigned char MMU::readByte(unsigned short addr)
@@ -83,7 +83,7 @@ unsigned char MMU::readByte(unsigned short addr)
             if(addr < 0xFF80) // I/O 0xFF00 - 0xFF7F
                 return readIO(addr);
             if(addr < 0xFFFF) // HRAM 0xFF80 - 0xFFFE
-                return _hram[0x007F & addr];
+                return _hram.at(0x007F & addr);
             return _ier; // Interrupts Enable Register
         }
         default:
@@ -163,7 +163,7 @@ void MMU::writeByte(unsigned short addr, unsigned char value)
             }
             if(addr < 0xFFFF) // HRAM 0xFF80 - 0xFFFE
             {
-                _hram[0x007F & addr] = value;
+                _hram.at(0x007F & addr) = value;
                 return;
             }
             _ier = value; // Interrupts Enable Register

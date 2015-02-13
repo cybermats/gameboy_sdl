@@ -8,7 +8,7 @@
     if(!Sum) SET_FLAG(Z_FLAG); \
     auto val = (Sum ^ Term1 ^ Term2); \
     auto c = (val & (1 << BitSize)) >> (BitSize - 5); \
-    auto h = val & (1 << (BitSize - 4)) >> (BitSize - 4); \
+    auto h = (val & (1 << (BitSize - 4))) >> (BitSize - 4); \
     SET_FLAG(c | h);
 
 #define INC_REG(Reg) \
@@ -30,7 +30,7 @@
     af.b.l &= ~(((Reg & (1 << Bit)) >> Bit) << 7);
 
 #define ROTATE_LEFT_THROUGH_CARRY(Reg) \
-    unsigned char c = (af.b.l & 0x10 >> 4); /* Save carry */ \
+    unsigned char c = ((af.b.l & 0x10) >> 4); /* Save carry */ \
     af.b.l = (Reg & 0x80) >> 3; /* Set C-flag (and reset all other) */ \
     Reg = (Reg << 1) | c; /* Rotate through carry */ \
     if(!Reg) SET_FLAG(Z_FLAG);
@@ -41,7 +41,7 @@
     if(!Reg) SET_FLAG(Z_FLAG);
 
 #define ROTATE_RIGHT_THROUGH_CARRY(Reg) \
-    unsigned char c = (af.b.l & 0x10 << 3); /* Save carry */ \
+    unsigned char c = ((af.b.l & 0x10) << 3); /* Save carry */ \
     af.b.l = (Reg & 0x01) << 4; /* Set C-flag (and reset all other) */ \
     Reg = (Reg >> 1) | c; /* Rotate through carry */ \
     if(!Reg) SET_FLAG(Z_FLAG);

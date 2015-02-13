@@ -18,22 +18,24 @@ public:
         switch (0xF000 & addr) {
             case 0x8000:
             case 0x9000:
-                return _vram[0x1FFF & addr];
+                return _vram.at(0x1FFF & addr);
             default:
-                assert("Bad read of video memory");
+                assert(false);
                 return 0;
         }
     }
 
-    unsigned char writeByte(unsigned short addr, unsigned char value) {
+    void writeByte(unsigned short addr, unsigned char value) {
         switch (0xF000 & addr) {
             case 0x8000:
             case 0x9000:
-                _vram[0x1FFF & addr] = value;
+                _vram.at(0x1FFF & addr) = value;
                 updateTile(addr, value);
+                return;
             default:
-                assert("Bad write of video memory");
-                return 0;
+                std::cout << "Gpu::writeByte, out of bounds, addr: " << addr << std::endl;
+                assert(false);
+                return;
         }
     }
 
@@ -63,7 +65,7 @@ public:
                 return _raster;
 
             default:
-                return _regs[gaddr];
+                return _regs.at(gaddr);
         }
     }
 
@@ -72,7 +74,7 @@ public:
     void updateOAM(unsigned short addr, unsigned char value) {
         addr &= 0x00FF;
         assert((addr >> 2) < 40);
-        _spriteData[addr >> 2][addr & 3] = value;
+        _spriteData.at(addr >> 2)[addr & 3] = value;
         std::sort(_spriteData.begin(), _spriteData.end(),
                 [](const SpriteData &a, const SpriteData &b) {
                     if (a.x < b.x) return false;
@@ -85,29 +87,60 @@ public:
     void updateTile(unsigned short addr, unsigned char value) {
         if (addr & 1)
             addr--;
-        auto saddr = addr;
+        auto saddr = addr & 0x1FFF;
         auto tile = (addr >> 4) & 511;
         auto y = (addr >> 1) & 7;
         for (auto x = 0; x < 8; ++x) {
             auto sx = 1 << (7 - x);
-            _tilemap[tile][y][x] = ((_vram[saddr] & sx) ? 1 : 0) | ((_vram[saddr + 1] & sx) ? 2 : 0);
+            _tilemap.at(tile).at(y).at(x) = ((_vram.at(saddr) & sx) ? 1 : 0) | ((_vram.at(saddr + 1) & sx) ? 2 : 0);
         }
     }
 
     uint8_t readOAM(unsigned short addr) {
-        return _oam[0x00FF & addr];
+        return _oam.at(0x00FF & addr);
     }
 
     void writeOAM(unsigned short addr, unsigned char value) {
-        _oam[0x00FF & addr] = value;
+        _oam.at(0x00FF & addr) = value;
         updateOAM(addr, value);
     }
 
     void renderimage() {
+        /*
+        std::cout << "Render image" << std::endl;
+        for(auto y = 0; y < 144; y+=10)
+        {
+            for(auto x = 0; x < 160 * 3; x+=10)
+            {
+                auto idx = y * (160*3) + x;
+                char c = '*';
+                if(_screenData.at(idx) < 255 )
+                    c = ' ';
+                std::cout << c;
+            }
+            std::cout << std::endl;
+
+        }
+        */
+//        std::cout << "x: " << (unsigned int)_xscrl << ", y: " << (unsigned int)_yscrl << std::endl;
+        _hasImage = true;
+    }
+
+    bool hasImage()
+    {
+        if(!_hasImage)
+            return false;
+        _hasImage = false;
+        return true;
+    }
+
+    std::vector<uint8_t>& getFrame()
+    {
+        return _screenData;
     }
 
 
-private:
+//private:
 
     struct SpriteData {
     private:
@@ -145,6 +178,7 @@ private:
                 case 3:
                     return flags.data;
                 default:
+                    assert(false);
                     return y;
             }
         }
@@ -155,13 +189,13 @@ private:
 
     uint64_t _modeclocks;
     uint8_t _linemode;
-    uint8_t _currline;
-    uint8_t _currscan;
+    uint32_t _currline;
+    uint32_t _currscan;
     uint16_t _bgmapbase;
     uint16_t _bgtilebase;
     uint8_t _xscrl;
     uint8_t _yscrl;
-    uint8_t _raster;
+    uint32_t _raster;
 
     bool _lcdOn;
     bool _bgOn;
@@ -178,5 +212,7 @@ private:
     std::vector<uint8_t> _paletteObj0;
     std::vector<uint8_t> _paletteObj1;
     std::vector<SpriteData> _spriteData;
+
+    bool _hasImage;
 
 };
