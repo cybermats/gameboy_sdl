@@ -22,7 +22,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cartridge.h" />
-    <ClInclude Include="compatibility.h" />
     <ClInclude Include="cpu.h" />
     <ClInclude Include="gbu.h" />
     <ClInclude Include="gbu_sdl_wrapper.h" />

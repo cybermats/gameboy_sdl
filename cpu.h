@@ -14,8 +14,8 @@
 #define C_FLAG 0x10 // Carry flag
 #define ALL_FLAGS 0xF0
 
-#define SET_FLAG(flag) af.b.l |= (flag)
-#define RESET_FLAG(flag) af.b.l &= (0xFF ^ (flag))
+#define SET_FLAG(flag) r.f |= (flag)
+#define RESET_FLAG(flag) r.f &= (0xFF ^ (flag))
 
 
 class Cpu {
@@ -27,6 +27,46 @@ private:
             uint8_t h;
         } b;
     };
+
+	using Registers = struct {
+		struct {
+			union {
+				struct {
+					uint8_t f;
+					uint8_t a;
+				};
+				uint16_t af;
+			};
+		};
+		struct {
+			union {
+				struct {
+					uint8_t c;
+					uint8_t b;
+				};
+				uint16_t bc;
+			};
+		};
+		struct {
+			union {
+				struct {
+					uint8_t e;
+					uint8_t d;
+				};
+				uint16_t de;
+			};
+		};
+		struct {
+			union {
+				struct {
+					uint8_t l;
+					uint8_t h;
+				};
+				uint16_t hl;
+			};
+		};
+	};
+
 public:
 
     Cpu(MMU* mbc)
@@ -35,10 +75,10 @@ public:
         , sp(0)
         , m(0)
     {
-        af.w = 0;
-        bc.w = 0;
-        de.w = 0;
-        hl.w = 0;
+		r.af = 0;
+		r.bc = 0;
+		r.de = 0;
+		r.hl = 0;
 
     }
 
@@ -74,11 +114,8 @@ public:
 
     uint16_t pc;
     uint16_t sp;
-
-    z80Reg af;
-    z80Reg bc;
-    z80Reg de;
-    z80Reg hl;
+	
+	Registers r;
 
     bool ime;
     bool halt;

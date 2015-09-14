@@ -35,19 +35,19 @@ void Cpu::printStep()
     std::cout << " A ZNHC  BC   DE   HL   SP   PC  Im   Op  Mne" << std::endl;
     std::cout << std::hex
             << std::setfill('0') << std::setw(2)
-            << (int)af.b.h
+            << (int)r.a
             << " "
-            << ((af.b.l & Z_FLAG)?"1":"0")
-            << ((af.b.l & N_FLAG)?"1":"0")
-            << ((af.b.l & H_FLAG)?"1":"0")
-            << ((af.b.l & C_FLAG)?"1":"0")
+            << ((r.f & Z_FLAG)?"1":"0")
+            << ((r.f & N_FLAG)?"1":"0")
+            << ((r.f & H_FLAG)?"1":"0")
+            << ((r.f & C_FLAG)?"1":"0")
             << " "
             << std::setfill('0') << std::setw(4)
-            << bc.w << " "
+            << r.bc << " "
             << std::setfill('0') << std::setw(4)
-            << de.w << " "
+            << r.de << " "
             << std::setfill('0') << std::setw(4)
-            << hl.w << " "
+            << r.hl << " "
             << std::setfill('0') << std::setw(4)
             << sp << " "
             << std::setfill('0') << std::setw(4)

@@ -48,7 +48,7 @@ void Gpu::checkline(uint64_t clockticks)
                 else {
                     _linemode = 2;
                 }
-                _modeclocks = 0;
+                _modeclocks -= 51;
                 _currline++;
                 _currscan +=160;
             }
@@ -56,7 +56,7 @@ void Gpu::checkline(uint64_t clockticks)
         // In VBlank
         case 1:
             if(_modeclocks >= 114) {
-                _modeclocks = 0;
+                _modeclocks -= 114;
                 _currline++;
                 if (_currline > 153) {
                     _currline = 0;
@@ -69,7 +69,7 @@ void Gpu::checkline(uint64_t clockticks)
         case 2:
             if(_modeclocks >= 20)
             {
-                _modeclocks = 0;
+                _modeclocks -= 20;
                 _linemode = 3;
             }
             break;
@@ -77,7 +77,7 @@ void Gpu::checkline(uint64_t clockticks)
         case 3:
             if(_modeclocks >= 43)
             {
-                _modeclocks = 0;
+                _modeclocks -= 43;
                 _linemode = 0;
                 if(_lcdOn)
                 {

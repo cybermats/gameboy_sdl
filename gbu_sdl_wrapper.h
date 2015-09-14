@@ -21,7 +21,7 @@ private:
         _gbu->runFrame();
         const auto& frame = _gbu->getBuffer();
         assert(frame.size() == buffer.size());
-        for(auto i = 0; i < frame.size(); ++i)
+        for(size_t i = 0; i < frame.size(); ++i)
         {
             auto c = frame[i];
 //            buffer[i] = c | c << 8 | c << 16 | c << 24;
