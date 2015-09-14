@@ -1,6 +1,8 @@
 #pragma once
 #include <cassert>
 #include <vector>
+#include <algorithm>
+#include <stdint.h>
 #include "mmu.h"
 
 #include <iostream>

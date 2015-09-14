@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 #include <iostream>
-#include <SDL2/SDL_keyboard.h>
+#include <SDL_keyboard.h>
 
 class SDL_Wrapper
 {

@@ -54,6 +54,8 @@ size_t Cartridge::getRamSize(const std::vector<unsigned char>& buffer)
 std::vector<unsigned char> Cartridge::readFile(const char* filename)
 {
     std::ifstream file(filename, std::ios::binary|std::ios::ate);
+	if (!file.good())
+		throw "Unable to read file: " + std::string(filename);
     std::streampos size = file.tellg();
     std::vector<unsigned char> buffer(size);
     file.seekg(0, std::ios::beg);

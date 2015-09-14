@@ -12,11 +12,35 @@ using namespace std;
 int main() {
     cout << std::setfill('0') << std::setw(4) << hex << "Hello, World!" << endl;
 
-    const char* filename = "/Users/mats/Documents/Code/gameboyemu/roms/Super Mario Land.gb";
+//	const char* filename = "/Users/mats/Documents/Code/gameboyemu/roms/Super Mario Land.gb";
+	const char* filename = "C:\\Users\\mats\\Documents\\gameboy_sdl\\roms\\Super Mario Land.gb";
 
-    Gbu gbu(filename);
-    GbuSdlWrapper wrapper(&gbu);
-    wrapper.mainloop();
+	try
+	{
+		Gbu gbu(filename);
+		GbuSdlWrapper wrapper(&gbu);
+		wrapper.mainloop();
+	}
+	catch (const char* msg)
+	{
+		std::cout << "Error detected: " << msg << std::endl;
+		std::cout << "Aborting." << std::endl;
+		return -1;
+	}
+	catch (const std::string& msg)
+	{
+		std::cout << "Error detected: " << msg << std::endl;
+		std::cout << "Aborting." << std::endl;
+		return -1;
+	}
+	catch (...)
+	{
+		std::cout << "Unhandled exception." << std::endl;
+		std::cout << "Aborting." << std::endl;
+		return -1;
+
+	}
+
 
 
 /*
