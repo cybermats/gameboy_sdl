@@ -237,7 +237,8 @@ public:
     void LDAIOC();
     void LDIOCA();
 
-    void LDHLSPn();
+	void LDHLSPn();
+	void LDSPHL();
 
     void LDmmSP();
 

@@ -281,7 +281,7 @@ Cpu::opinfo_t Cpu::opmap[256] = {
         { &Cpu::XORn, "XORn", 2 },
         { &Cpu::RST30, "RST30", 1 },
         { &Cpu::LDHLSPn, "LDHLSPn", 2 },
-        { &Cpu::Unimpl, "XX", 1 },
+        { &Cpu::LDSPHL, "LDSPHL", 3 },
         { &Cpu::LDAmm, "LDAmm", 3 },
         { &Cpu::EI, "EI", 1 },
         { &Cpu::Unimpl, "XX", 1 },

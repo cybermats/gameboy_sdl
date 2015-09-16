@@ -170,6 +170,8 @@ void Cpu::LDIOCA() { _mbc->writeByte(0xFF00 + r.c, r.a); m = 2; }
 
 void Cpu::LDHLSPn() { char c = (char)_mbc->readByte(pc++); int s = sp + c; r.hl = s; SIGNED_ADD_WITH_FLAGS(sp, c, s); m = 3; }
 
+void Cpu::LDSPHL() { sp = r.hl; m = 2; }
+
 void Cpu::LDmmSP() { auto mm = _mbc->readShort(pc++); pc++; _mbc->writeShort(mm, sp); m = 5; }
 
 void Cpu::SWAPr_b() { auto v = r.b; r.b = ((v & 0xF0) >> 4) | ((v & 0x0F) << 4); m = 2; RESET_FLAG(ALL_FLAGS); if(!v) SET_FLAG(Z_FLAG); }
