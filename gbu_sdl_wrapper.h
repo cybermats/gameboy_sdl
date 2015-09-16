@@ -25,10 +25,10 @@ private:
         {
             auto c = frame[i];
 //            buffer[i] = c | c << 8 | c << 16 | c << 24;
-            if(c == 255)
-                buffer[i] = 0xFFFFFFFF;
+			if (c == 255)
+				buffer.at(i) = 0xFFFFFFFF;
             else
-                buffer[i] = 0;
+                buffer.at(i) = 0;
 //            buffer[i] = c;
         }
         return true;

@@ -35,7 +35,7 @@ public:
         size_t romBank = _romSelector & 0x001f;
         if(!_ramMode)
             romBank += (0x0003 & _ramSelector) << 5;
-        return &_rom[0x4000 * romBank];
+        return &_rom.at(0x4000 * romBank);
     }
 
     virtual unsigned char *getRamBank() override
@@ -46,7 +46,7 @@ public:
         size_t ramBank = 0;
         if(_ramMode)
             ramBank = 0x0003 & _ramSelector;
-        return &_ram[0x2000 * ramBank];
+        return &_ram.at(0x2000 * ramBank);
     }
 
     virtual void update(unsigned short addr, unsigned char value) override
