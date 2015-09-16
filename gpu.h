@@ -79,9 +79,9 @@ public:
         _spriteData.at(addr >> 2)[addr & 3] = value;
         std::sort(_spriteData.begin(), _spriteData.end(),
                 [](const SpriteData &a, const SpriteData &b) {
-                    if (a.x < b.x) return false;
-                    if (a.patternNum < b.patternNum) return false;
-                    return true;
+                    if (a.x < b.x) return true;
+                    if (a.patternNum < b.patternNum) return true;
+                    return false;
                 });
 
     }

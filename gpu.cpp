@@ -10,7 +10,7 @@ Gpu::Gpu(MMU* mmu)
 , _paletteObj1(4, 255)
   , _tilemap(512, std::vector<std::vector<uint8_t>>(8, std::vector<uint8_t>(8, 0)))
 , _screenData(160*144, 255)
-, _oam(0x9f, 0)
+, _oam(0xA0, 0)
 , _currline(0)
 , _currscan(0)
 , _linemode(0)
@@ -93,10 +93,10 @@ void Gpu::checkline(uint64_t clockticks)
                         {
                             uint8_t tile = _vram.at(mapbase+t);
                             if(tile<128) tile=256+tile;
-                            auto& tilerow = _tilemap.at(tile).at(y);
+                            auto tilerow = _tilemap.at(tile).at(y);
                             do
                             {
-                                _scanrow.at(159-x) = tilerow.at(x);
+                                _scanrow.at(160-w) = tilerow.at(x);
                                 assert(linebase < _screenData.size());
                                 _screenData.at(linebase) = _paletteBg.at(tilerow.at(x));
                                 x++;
@@ -106,15 +106,22 @@ void Gpu::checkline(uint64_t clockticks)
                         }
                         else
                         {
-                            auto& tilerow=_tilemap.at(_vram.at(mapbase+t)).at(y);
+							auto adress = _vram.at(mapbase + t);
+
+                            auto tilerow=_tilemap.at(_vram.at(mapbase+t)).at(y);
                             do
                             {
                                 auto tmp = tilerow.at(x);
-                                _scanrow.at(159-x) = tmp;
+                                _scanrow.at(160-w) = tmp;
                                 assert(linebase < _screenData.size());
-                                _screenData.at(linebase) = _paletteBg.at(tilerow.at(x));
+                                _screenData.at(linebase) = _paletteBg.at(tmp);
                                 x++;
-                                if(x==8) { t=(t+1)&31; x=0; tilerow=_tilemap.at(_vram.at(mapbase+t)).at(y); }
+                                if(x==8) 
+								{ 
+									t=(t+1)&31; 
+									x=0; 
+									tilerow=_tilemap.at(_vram.at(mapbase+t)).at(y); 
+								}
                                 linebase+=1;
                             } while(--w);
                         }
