@@ -15,7 +15,7 @@
 #define ALL_FLAGS 0xF0
 
 #define SET_FLAG(flag) r.f |= (flag)
-#define RESET_FLAG(flag) r.f &= (0xFF ^ (flag))
+#define RESET_FLAG(flag) r.f &= (0xF0 ^ (flag))
 
 
 class Cpu {
