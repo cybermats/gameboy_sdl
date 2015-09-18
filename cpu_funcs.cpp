@@ -13,11 +13,10 @@
 
 
 #define COMPUTE_CARRY_FLAGS_16(Term1, Term2, Sum) \
-    RESET_FLAG(ALL_FLAGS); \
-    if(!(Sum & 0xFFFF)) SET_FLAG(Z_FLAG); \
+    RESET_FLAG(N_FLAG | H_FLAG | C_FLAG ); \
     auto val = (Sum ^ Term1 ^ Term2); \
     auto c = (val & (1 << 16)) >> (16 - 4); \
-    auto h = (val & (1 << 4)) << 1; \
+    auto h = (val & (1 << 12)) << (12 - 5); \
     SET_FLAG(c | h);
 
 #define INC_REG(Reg) \
@@ -194,11 +193,11 @@ void Cpu::ADDr_l() { unsigned short a = r.a; a += r.l; COMPUTE_CARRY_FLAGS_8(r.a
 void Cpu::ADDr_a() { unsigned short a = r.a; a += r.a; COMPUTE_CARRY_FLAGS_8(r.a, r.a, a); RESET_FLAG(N_FLAG); r.a = (uint8_t)a; m = 1; }
 void Cpu::ADDHL() { unsigned short a = r.a; unsigned short v = _mbc->readByte(r.hl); a += v; COMPUTE_CARRY_FLAGS_8(r.a, v, a); RESET_FLAG(N_FLAG); r.a = (uint8_t)a; m = 2; }
 void Cpu::ADDn() { unsigned short a = r.a; unsigned short v = _mbc->readByte(pc++); a += v; COMPUTE_CARRY_FLAGS_8(r.a, v, a); RESET_FLAG(N_FLAG); r.a = (uint8_t)a; m = 2; }
-void Cpu::ADDHLBC() { unsigned int rhl = r.hl; rhl += r.bc; COMPUTE_CARRY_FLAGS_16(r.hl, r.bc, rhl); RESET_FLAG(N_FLAG); r.hl = (uint16_t)rhl; m = 2; }
-void Cpu::ADDHLDE() { unsigned int rhl = r.hl; rhl += r.de; COMPUTE_CARRY_FLAGS_16(r.hl, r.de, rhl); RESET_FLAG(N_FLAG); r.hl = (uint16_t)rhl; m = 2; }
-void Cpu::ADDHLHL() { unsigned int rhl = r.hl; rhl += r.hl; COMPUTE_CARRY_FLAGS_16(r.hl, r.hl, rhl); RESET_FLAG(N_FLAG); r.hl = (uint16_t)rhl; m = 2; }
-void Cpu::ADDHLSP() { unsigned int rhl = r.hl; rhl += sp; COMPUTE_CARRY_FLAGS_16(r.hl, sp, rhl); RESET_FLAG(N_FLAG); r.hl = (uint16_t)rhl; m = 2; }
-void Cpu::ADDSPn() { unsigned int rsp = sp; char v = _mbc->readByte(pc++); rsp += v; COMPUTE_CARRY_FLAGS_16(sp, v, rsp); RESET_FLAG(Z_FLAG | N_FLAG); sp = (uint16_t)rsp; m = 4; }
+void Cpu::ADDHLBC() { unsigned int rhl = r.hl; rhl += r.bc; COMPUTE_CARRY_FLAGS_16(r.hl, r.bc, rhl); r.hl = (uint16_t)rhl; m = 2; }
+void Cpu::ADDHLDE() { unsigned int rhl = r.hl; rhl += r.de; COMPUTE_CARRY_FLAGS_16(r.hl, r.de, rhl); r.hl = (uint16_t)rhl; m = 2; }
+void Cpu::ADDHLHL() { unsigned int rhl = r.hl; rhl += r.hl; COMPUTE_CARRY_FLAGS_16(r.hl, r.hl, rhl); r.hl = (uint16_t)rhl; m = 2; }
+void Cpu::ADDHLSP() { unsigned int rhl = r.hl; rhl += sp; COMPUTE_CARRY_FLAGS_16(r.hl, sp, rhl); r.hl = (uint16_t)rhl; m = 2; }
+void Cpu::ADDSPn() { unsigned int rsp = sp; char v = _mbc->readByte(pc++); rsp += v; COMPUTE_CARRY_FLAGS_16(sp, v, rsp); RESET_FLAG(Z_FLAG); sp = (uint16_t)rsp; m = 4; }
 
 void Cpu::ADCr_b() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short a = ca + r.b; COMPUTE_CARRY_FLAGS_8(ca, r.b, a); RESET_FLAG(N_FLAG); r.a = (uint8_t)a; m = 1; }
 void Cpu::ADCr_c() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short a = ca + r.c; COMPUTE_CARRY_FLAGS_8(ca, r.c, a); RESET_FLAG(N_FLAG); r.a = (uint8_t)a; m = 1; }
