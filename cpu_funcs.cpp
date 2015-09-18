@@ -16,7 +16,7 @@
     RESET_FLAG(N_FLAG | H_FLAG | C_FLAG ); \
     auto val = (Sum ^ Term1 ^ Term2); \
     auto c = (val & (1 << 16)) >> (16 - 4); \
-    auto h = (val & (1 << 12)) << (12 - 5); \
+    auto h = (val & (1 << 12)) >> (12 - 5); \
     SET_FLAG(c | h);
 
 #define INC_REG(Reg) \
