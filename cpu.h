@@ -365,6 +365,7 @@ public:
     void DECDE();
     void DECHL();
     void DECSP();
+	void DAA();
 
     /* Bit manipulation */
     void BIT0b();

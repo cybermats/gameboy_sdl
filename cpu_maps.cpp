@@ -45,7 +45,7 @@ Cpu::opinfo_t Cpu::opmap[256] = {
         { &Cpu::INCr_h, "INCr_h", 1 },
         { &Cpu::DECr_h, "DECr_h", 1 },
         { &Cpu::LDrn_h, "LDrn_h", 2 },
-        { &Cpu::Unimpl, "XX", 1 },
+        { &Cpu::DAA, "DAA", 1 },
         { &Cpu::JRZn, "JRZn", 2 },
         { &Cpu::ADDHLHL, "ADDHLHL", 1 },
         { &Cpu::LDAHLI, "LDAHLI", 1 },
@@ -268,7 +268,7 @@ Cpu::opinfo_t Cpu::opmap[256] = {
         { &Cpu::Unimpl, "XX", 1 },
         { &Cpu::Unimpl, "XX", 1 },
         { &Cpu::Unimpl, "XX", 1 },
-        { &Cpu::ORn, "ORn", 2 },
+        { &Cpu::XORn, "XORn", 2 },
         { &Cpu::RST28, "RST28", 1 },
 
         // 0xF0
@@ -278,7 +278,7 @@ Cpu::opinfo_t Cpu::opmap[256] = {
         { &Cpu::DI, "DI", 1 },
         { &Cpu::Unimpl, "XX", 1 },
         { &Cpu::PUSHAF, "PUSHAF", 1 },
-        { &Cpu::XORn, "XORn", 2 },
+        { &Cpu::ORn, "ORn", 2 },
         { &Cpu::RST30, "RST30", 1 },
         { &Cpu::LDHLSPn, "LDHLSPn", 2 },
         { &Cpu::LDSPHL, "LDSPHL", 3 },

@@ -5,7 +5,7 @@
 
 #define COMPUTE_CARRY_FLAGS_8(Term1, Term2, Sum) \
     RESET_FLAG(ALL_FLAGS); \
-    if(!Sum) SET_FLAG(Z_FLAG); \
+    if(!(Sum & 0xFF)) SET_FLAG(Z_FLAG); \
     auto val = (Sum ^ Term1 ^ Term2); \
     auto c = (val & (1 << 8)) >> 4; \
     auto h = (val & (1 << 4)) << 1; \
@@ -14,7 +14,7 @@
 
 #define COMPUTE_CARRY_FLAGS_16(Term1, Term2, Sum) \
     RESET_FLAG(ALL_FLAGS); \
-    if(!Sum) SET_FLAG(Z_FLAG); \
+    if(!(Sum & 0xFFFF)) SET_FLAG(Z_FLAG); \
     auto val = (Sum ^ Term1 ^ Term2); \
     auto c = (val & (1 << 16)) >> (16 - 4); \
     auto h = (val & (1 << 4)) << 1; \
@@ -297,6 +297,39 @@ void Cpu::DECBC() { r.bc--; m = 2; }
 void Cpu::DECDE() { r.de--; m = 2; }
 void Cpu::DECHL() { r.hl--; m = 2; }
 void Cpu::DECSP() { sp--; m = 2; }
+
+void Cpu::DAA() {
+	static int counter = 0;
+
+
+	unsigned short s = r.a;
+
+	bool n = (r.f & N_FLAG) != 0;
+	bool h = (r.f & H_FLAG) != 0;
+	bool c = (r.f & C_FLAG) != 0;
+
+	if (n) {
+		if (h) s = (s - 0x06) & 0xFF;
+		if (c) s -= 0x60;
+	}
+	else
+	{
+		if (h || (s & 0x0F) > 9) s += 0x06;
+		if (c || s > 0x9F) s += 0x60;
+	}
+
+	r.a = (uint8_t)s;
+	RESET_FLAG(H_FLAG);
+	if (r.a) 
+		RESET_FLAG(Z_FLAG);
+	else 
+		SET_FLAG(Z_FLAG);
+
+	if (s >= 0x100)
+		SET_FLAG(C_FLAG);
+
+	m = 1;
+}
 
 /* Bit manipulation */
 void Cpu::BIT0b() { BIT_CHECK(r.b, 0); m = 2; }
@@ -597,7 +630,7 @@ void Cpu::PUSHAF() { sp -= 2; _mbc->writeShort(sp, r.af); m = 4;}
 void Cpu::POPBC() { r.bc = _mbc->readShort(sp); sp+=2; m = 3;}
 void Cpu::POPDE() { r.de = _mbc->readShort(sp); sp+=2; m = 3;}
 void Cpu::POPHL() { r.hl = _mbc->readShort(sp); sp+=2; m = 3;}
-void Cpu::POPAF() { r.af = _mbc->readShort(sp); sp+=2; m = 3;}
+void Cpu::POPAF() { r.af = 0xFFF0 & _mbc->readShort(sp); sp+=2; m = 3;}
 
 
 /* Jumps */

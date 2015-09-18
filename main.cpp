@@ -13,13 +13,32 @@ int main() {
     cout << std::setfill('0') << std::setw(4) << hex << "Hello, World!" << endl;
 
 //	const char* filename = "/Users/mats/Documents/Code/gameboyemu/roms/Super Mario Land.gb";
-	const char* filename = "C:\\Users\\mats\\Documents\\gameboy_sdl\\roms\\Super Mario Land.gb";
+//	const char* filename = "C:\\Users\\mats\\Documents\\gameboy_sdl\\roms\\Super Mario Land.gb";
+//	const char* filename = "C:\\Users\\mats\\Documents\\gameboy_sdl\\roms\\cpu_instrs\\cpu_instrs.gb";
+	const char* filename = "C:\\Users\\mats\\Documents\\gameboy_sdl\\roms\\cpu_instrs\\individual\\01-special.gb";
+//	const char* filename = "C:\\Users\\mats\\Documents\\gameboy_sdl\\roms\\cpu_instrs\\individual\\02-interrupts.gb";
+//	const char* filename = "C:\\Users\\mats\\Documents\\gameboy_sdl\\roms\\cpu_instrs\\individual\\03-op sp,hl.gb";
+//	const char* filename = "C:\\Users\\mats\\Documents\\gameboy_sdl\\roms\\cpu_instrs\\individual\\04-op r,imm.gb";
+//	const char* filename = "C:\\Users\\mats\\Documents\\gameboy_sdl\\roms\\cpu_instrs\\individual\\05-op rp.gb";
+//	const char* filename = "C:\\Users\\mats\\Documents\\gameboy_sdl\\roms\\cpu_instrs\\individual\\06-ld r,r.gb";
+//	const char* filename = "C:\\Users\\mats\\Documents\\gameboy_sdl\\roms\\cpu_instrs\\individual\\07-jr,jp,call,ret,rst.gb";
+//	const char* filename = "C:\\Users\\mats\\Documents\\gameboy_sdl\\roms\\cpu_instrs\\individual\\08-misc instrs.gb";
+//	const char* filename = "C:\\Users\\mats\\Documents\\gameboy_sdl\\roms\\cpu_instrs\\individual\\09-op r,r.gb";
+//	const char* filename = "C:\\Users\\mats\\Documents\\gameboy_sdl\\roms\\cpu_instrs\\individual\\10-bit ops.gb";
+//	const char* filename = "C:\\Users\\mats\\Documents\\gameboy_sdl\\roms\\cpu_instrs\\individual\\11-op a,(hl).gb";
 
+
+
+	//#define ENABLE_EXCEPTIONS
+
+#ifdef ENABLE_EXCEPTIONS
 	try
 	{
+#endif
 		Gbu gbu(filename);
 		GbuSdlWrapper wrapper(&gbu);
 		wrapper.mainloop();
+#ifdef ENABLE_EXCEPTIONS
 	}
 	catch (const char* msg)
 	{
@@ -40,7 +59,7 @@ int main() {
 		return -1;
 
 	}
-
+#endif
 
 
 /*
