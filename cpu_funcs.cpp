@@ -235,7 +235,7 @@ void Cpu::CPr_d() { unsigned short a = r.a; unsigned short s = a - r.d; COMPUTE_
 void Cpu::CPr_e() { unsigned short a = r.a; unsigned short s = a - r.e; COMPUTE_CARRY_FLAGS_8(a, r.e, s); SET_FLAG(N_FLAG); m = 1; }
 void Cpu::CPr_h() { unsigned short a = r.a; unsigned short s = a - r.h; COMPUTE_CARRY_FLAGS_8(a, r.h, s); SET_FLAG(N_FLAG); m = 1; }
 void Cpu::CPr_l() { unsigned short a = r.a; unsigned short s = a - r.l; COMPUTE_CARRY_FLAGS_8(a, r.l, s); SET_FLAG(N_FLAG); m = 1; }
-void Cpu::CPr_a() { unsigned short a = r.a; unsigned short s = a - r.a; COMPUTE_CARRY_FLAGS_8(a, a, s); SET_FLAG(Z_FLAG); m = 1; }
+void Cpu::CPr_a() { unsigned short a = r.a; unsigned short s = a - r.a; COMPUTE_CARRY_FLAGS_8(a, a, s); SET_FLAG(N_FLAG); m = 1; }
 void Cpu::CPHL() { unsigned short a = r.a; unsigned short v = _mbc->readByte(r.hl); unsigned short s = a - v; COMPUTE_CARRY_FLAGS_8(a, v, s); SET_FLAG(N_FLAG); m = 2; }
 void Cpu::CPn() { unsigned short a = r.a; unsigned short v = _mbc->readByte(pc++); unsigned short s = a - v; COMPUTE_CARRY_FLAGS_8(a, v, s); SET_FLAG(N_FLAG); m = 2; }
 
