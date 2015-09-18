@@ -1,8 +1,6 @@
 #include "cpu.h"
 #include <iostream>
 
-#define SIGNED_ADD_WITH_FLAGS(t1, t2, s) RESET_FLAG(ALL_FLAGS); SET_FLAG(((s ^ t1) >> 4) & C_FLAG), SET_FLAG(((s ^ t1) << 1) & H_FLAG)
-
 #define COMPUTE_CARRY_FLAGS_8(Term1, Term2, Sum) \
     RESET_FLAG(ALL_FLAGS); \
     if(!(Sum & 0xFF)) SET_FLAG(Z_FLAG); \
@@ -17,6 +15,13 @@
     auto val = (Sum ^ Term1 ^ Term2); \
     auto c = (val & (1 << 16)) >> (16 - 4); \
     auto h = (val & (1 << 12)) >> (12 - 5); \
+    SET_FLAG(c | h);
+
+#define COMPUTE_CARRY_FLAGS_16_8(Term1, Term2, Sum) \
+    RESET_FLAG(N_FLAG | H_FLAG | C_FLAG ); \
+    auto val = (Sum ^ Term1 ^ Term2); \
+    auto c = (val & (1 << 8)) >> 4; \
+    auto h = (val & (1 << 4)) << 1; \
     SET_FLAG(c | h);
 
 #define INC_REG(Reg) \
@@ -163,7 +168,7 @@ void Cpu::LDIOnA() { _mbc->writeByte(0xFF00 + _mbc->readByte(pc++), r.a); m = 3;
 void Cpu::LDAIOC() { r.a = _mbc->readByte(0xFF00 + r.c); m = 2; }
 void Cpu::LDIOCA() { _mbc->writeByte(0xFF00 + r.c, r.a); m = 2; }
 
-void Cpu::LDHLSPn() { char c = (char)_mbc->readByte(pc++); int s = sp + c; r.hl = s; SIGNED_ADD_WITH_FLAGS(sp, c, s); m = 3; }
+void Cpu::LDHLSPn() { unsigned int rsp = sp; char v = (char)_mbc->readByte(pc++); rsp += v; COMPUTE_CARRY_FLAGS_16_8(sp, v, rsp); RESET_FLAG(Z_FLAG); r.hl = (uint16_t)rsp; m = 3; }
 
 void Cpu::LDSPHL() { sp = r.hl; m = 2; }
 
@@ -193,7 +198,7 @@ void Cpu::ADDHLBC() { unsigned int rhl = r.hl; rhl += r.bc; COMPUTE_CARRY_FLAGS_
 void Cpu::ADDHLDE() { unsigned int rhl = r.hl; rhl += r.de; COMPUTE_CARRY_FLAGS_16(r.hl, r.de, rhl); r.hl = (uint16_t)rhl; m = 2; }
 void Cpu::ADDHLHL() { unsigned int rhl = r.hl; rhl += r.hl; COMPUTE_CARRY_FLAGS_16(r.hl, r.hl, rhl); r.hl = (uint16_t)rhl; m = 2; }
 void Cpu::ADDHLSP() { unsigned int rhl = r.hl; rhl += sp; COMPUTE_CARRY_FLAGS_16(r.hl, sp, rhl); r.hl = (uint16_t)rhl; m = 2; }
-void Cpu::ADDSPn() { unsigned int rsp = sp; char v = _mbc->readByte(pc++); rsp += v; COMPUTE_CARRY_FLAGS_16(sp, v, rsp); RESET_FLAG(Z_FLAG); sp = (uint16_t)rsp; m = 4; }
+void Cpu::ADDSPn() { unsigned int rsp = sp; char v = (char)_mbc->readByte(pc++); rsp += v; COMPUTE_CARRY_FLAGS_16_8(sp, v, rsp); RESET_FLAG(Z_FLAG); sp = (uint16_t)rsp; m = 4; }
 
 void Cpu::ADCr_b() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short sa = ca + r.b; COMPUTE_CARRY_FLAGS_8(r.a, r.b, sa); RESET_FLAG(N_FLAG); r.a = (uint8_t)sa; m = 1; }
 void Cpu::ADCr_c() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short sa = ca + r.c; COMPUTE_CARRY_FLAGS_8(r.a, r.c, sa); RESET_FLAG(N_FLAG); r.a = (uint8_t)sa; m = 1; }
