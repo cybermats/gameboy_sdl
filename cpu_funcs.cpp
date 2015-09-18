@@ -199,15 +199,15 @@ void Cpu::ADDHLHL() { unsigned int rhl = r.hl; rhl += r.hl; COMPUTE_CARRY_FLAGS_
 void Cpu::ADDHLSP() { unsigned int rhl = r.hl; rhl += sp; COMPUTE_CARRY_FLAGS_16(r.hl, sp, rhl); r.hl = (uint16_t)rhl; m = 2; }
 void Cpu::ADDSPn() { unsigned int rsp = sp; char v = _mbc->readByte(pc++); rsp += v; COMPUTE_CARRY_FLAGS_16(sp, v, rsp); RESET_FLAG(Z_FLAG); sp = (uint16_t)rsp; m = 4; }
 
-void Cpu::ADCr_b() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short a = ca + r.b; COMPUTE_CARRY_FLAGS_8(ca, r.b, a); RESET_FLAG(N_FLAG); r.a = (uint8_t)a; m = 1; }
-void Cpu::ADCr_c() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short a = ca + r.c; COMPUTE_CARRY_FLAGS_8(ca, r.c, a); RESET_FLAG(N_FLAG); r.a = (uint8_t)a; m = 1; }
-void Cpu::ADCr_d() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short a = ca + r.d; COMPUTE_CARRY_FLAGS_8(ca, r.d, a); RESET_FLAG(N_FLAG); r.a = (uint8_t)a; m = 1; }
-void Cpu::ADCr_e() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short a = ca + r.e; COMPUTE_CARRY_FLAGS_8(ca, r.e, a); RESET_FLAG(N_FLAG); r.a = (uint8_t)a; m = 1; }
-void Cpu::ADCr_h() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short a = ca + r.h; COMPUTE_CARRY_FLAGS_8(ca, r.h, a); RESET_FLAG(N_FLAG); r.a = (uint8_t)a; m = 1; }
-void Cpu::ADCr_l() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short a = ca + r.l; COMPUTE_CARRY_FLAGS_8(ca, r.l, a); RESET_FLAG(N_FLAG); r.a = (uint8_t)a; m = 1; }
-void Cpu::ADCr_a() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short a = ca + r.a; COMPUTE_CARRY_FLAGS_8(ca, r.a, a); RESET_FLAG(N_FLAG); r.a = (uint8_t)a; m = 1; }
-void Cpu::ADCHL() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short v = _mbc->readByte(r.hl); unsigned short a = ca + v; COMPUTE_CARRY_FLAGS_8(ca, v, a); RESET_FLAG(N_FLAG); r.a = (uint8_t)a; m = 2; }
-void Cpu::ADCn() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short v = _mbc->readByte(pc++); unsigned short a = ca + v; COMPUTE_CARRY_FLAGS_8(ca, v, a); RESET_FLAG(N_FLAG); r.a = (uint8_t)a; m = 2; }
+void Cpu::ADCr_b() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short sa = ca + r.b; COMPUTE_CARRY_FLAGS_8(r.a, r.b, sa); RESET_FLAG(N_FLAG); r.a = (uint8_t)sa; m = 1; }
+void Cpu::ADCr_c() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short sa = ca + r.c; COMPUTE_CARRY_FLAGS_8(r.a, r.c, sa); RESET_FLAG(N_FLAG); r.a = (uint8_t)sa; m = 1; }
+void Cpu::ADCr_d() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short sa = ca + r.d; COMPUTE_CARRY_FLAGS_8(r.a, r.d, sa); RESET_FLAG(N_FLAG); r.a = (uint8_t)sa; m = 1; }
+void Cpu::ADCr_e() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short sa = ca + r.e; COMPUTE_CARRY_FLAGS_8(r.a, r.e, sa); RESET_FLAG(N_FLAG); r.a = (uint8_t)sa; m = 1; }
+void Cpu::ADCr_h() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short sa = ca + r.h; COMPUTE_CARRY_FLAGS_8(r.a, r.h, sa); RESET_FLAG(N_FLAG); r.a = (uint8_t)sa; m = 1; }
+void Cpu::ADCr_l() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short sa = ca + r.l; COMPUTE_CARRY_FLAGS_8(r.a, r.l, sa); RESET_FLAG(N_FLAG); r.a = (uint8_t)sa; m = 1; }
+void Cpu::ADCr_a() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short sa = ca + r.a; COMPUTE_CARRY_FLAGS_8(r.a, r.a, sa); RESET_FLAG(N_FLAG); r.a = (uint8_t)sa; m = 1; }
+void Cpu::ADCHL() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short v = _mbc->readByte(r.hl); unsigned short sa = ca + v; COMPUTE_CARRY_FLAGS_8(r.a, v, sa); RESET_FLAG(N_FLAG); r.a = (uint8_t)sa; m = 2; }
+void Cpu::ADCn() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short v = _mbc->readByte(pc++); unsigned short sa = ca + v; COMPUTE_CARRY_FLAGS_8(r.a, v, sa); RESET_FLAG(N_FLAG); r.a = (uint8_t)sa; m = 2; }
 
 void Cpu::SUBr_b() { unsigned short a = r.a; a -= r.b; COMPUTE_CARRY_FLAGS_8(r.a, r.b, a); r.a = (uint8_t)a; SET_FLAG(N_FLAG); m = 1; }
 void Cpu::SUBr_c() { unsigned short a = r.a; a -= r.c; COMPUTE_CARRY_FLAGS_8(r.a, r.c, a); r.a = (uint8_t)a; SET_FLAG(N_FLAG); m = 1; }
@@ -215,19 +215,19 @@ void Cpu::SUBr_d() { unsigned short a = r.a; a -= r.d; COMPUTE_CARRY_FLAGS_8(r.a
 void Cpu::SUBr_e() { unsigned short a = r.a; a -= r.e; COMPUTE_CARRY_FLAGS_8(r.a, r.e, a); r.a = (uint8_t)a; SET_FLAG(N_FLAG); m = 1; }
 void Cpu::SUBr_h() { unsigned short a = r.a; a -= r.h; COMPUTE_CARRY_FLAGS_8(r.a, r.h, a); r.a = (uint8_t)a; SET_FLAG(N_FLAG); m = 1; }
 void Cpu::SUBr_l() { unsigned short a = r.a; a -= r.l; COMPUTE_CARRY_FLAGS_8(r.a, r.l, a); r.a = (uint8_t)a; SET_FLAG(N_FLAG); m = 1; }
-void Cpu::SUBr_a() { unsigned short a = r.a; a -= r.a; COMPUTE_CARRY_FLAGS_8(r.a, r.a, a); r.a = (uint8_t)a; SET_FLAG(Z_FLAG); m = 1; }
+void Cpu::SUBr_a() { unsigned short a = r.a; a -= r.a; COMPUTE_CARRY_FLAGS_8(r.a, r.a, a); r.a = (uint8_t)a; SET_FLAG(N_FLAG); m = 1; }
 void Cpu::SUBHL() { unsigned short a = r.a; unsigned short v = _mbc->readByte(r.hl); a -= v; COMPUTE_CARRY_FLAGS_8(r.a, v, a); r.a = (uint8_t)a; SET_FLAG(N_FLAG); m = 2; }
 void Cpu::SUBn() { unsigned short a = r.a; unsigned short v = _mbc->readByte(pc++); a -= v; COMPUTE_CARRY_FLAGS_8(r.a, v, a); r.a = (uint8_t)a; SET_FLAG(N_FLAG); m = 2; }
 
-void Cpu::SBCr_b() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short a = ca - r.b; COMPUTE_CARRY_FLAGS_8(ca, r.b, a); SET_FLAG(N_FLAG); r.a = (uint8_t)a; m = 1; }
-void Cpu::SBCr_c() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short a = ca - r.c; COMPUTE_CARRY_FLAGS_8(ca, r.c, a); SET_FLAG(N_FLAG); r.a = (uint8_t)a; m = 1; }
-void Cpu::SBCr_d() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short a = ca - r.d; COMPUTE_CARRY_FLAGS_8(ca, r.d, a); SET_FLAG(N_FLAG); r.a = (uint8_t)a; m = 1; }
-void Cpu::SBCr_e() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short a = ca - r.e; COMPUTE_CARRY_FLAGS_8(ca, r.e, a); SET_FLAG(N_FLAG); r.a = (uint8_t)a; m = 1; }
-void Cpu::SBCr_h() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short a = ca - r.h; COMPUTE_CARRY_FLAGS_8(ca, r.h, a); SET_FLAG(N_FLAG); r.a = (uint8_t)a; m = 1; }
-void Cpu::SBCr_l() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short a = ca - r.l; COMPUTE_CARRY_FLAGS_8(ca, r.l, a); SET_FLAG(N_FLAG); r.a = (uint8_t)a; m = 1; }
-void Cpu::SBCr_a() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short a = ca - r.a; COMPUTE_CARRY_FLAGS_8(ca, r.a, a); SET_FLAG(N_FLAG); r.a = (uint8_t)a; m = 1; }
-void Cpu::SBCHL() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short v = _mbc->readByte(r.hl); unsigned short a = ca - v; COMPUTE_CARRY_FLAGS_8(a, v, r.a); SET_FLAG(N_FLAG); r.a = (uint8_t)a; m = 2; }
-void Cpu::SBCn() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short v = _mbc->readByte(pc++); unsigned short a = ca - v; COMPUTE_CARRY_FLAGS_8(a, v, r.a); SET_FLAG(N_FLAG); r.a = (uint8_t)a; m = 2; }
+void Cpu::SBCr_b() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short sa = ca - r.b; COMPUTE_CARRY_FLAGS_8(r.a, r.b, sa); SET_FLAG(N_FLAG); r.a = (uint8_t)sa; m = 1; }
+void Cpu::SBCr_c() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short sa = ca - r.c; COMPUTE_CARRY_FLAGS_8(r.a, r.c, sa); SET_FLAG(N_FLAG); r.a = (uint8_t)sa; m = 1; }
+void Cpu::SBCr_d() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short sa = ca - r.d; COMPUTE_CARRY_FLAGS_8(r.a, r.d, sa); SET_FLAG(N_FLAG); r.a = (uint8_t)sa; m = 1; }
+void Cpu::SBCr_e() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short sa = ca - r.e; COMPUTE_CARRY_FLAGS_8(r.a, r.e, sa); SET_FLAG(N_FLAG); r.a = (uint8_t)sa; m = 1; }
+void Cpu::SBCr_h() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short sa = ca - r.h; COMPUTE_CARRY_FLAGS_8(r.a, r.h, sa); SET_FLAG(N_FLAG); r.a = (uint8_t)sa; m = 1; }
+void Cpu::SBCr_l() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short sa = ca - r.l; COMPUTE_CARRY_FLAGS_8(r.a, r.l, sa); SET_FLAG(N_FLAG); r.a = (uint8_t)sa; m = 1; }
+void Cpu::SBCr_a() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short sa = ca - r.a; COMPUTE_CARRY_FLAGS_8(r.a, r.a, sa); SET_FLAG(N_FLAG); r.a = (uint8_t)sa; m = 1; }
+void Cpu::SBCHL() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short v = _mbc->readByte(r.hl); unsigned short sa = ca - v; COMPUTE_CARRY_FLAGS_8(r.a, v, sa); SET_FLAG(N_FLAG); r.a = (uint8_t)sa; m = 2; }
+void Cpu::SBCn() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short v = _mbc->readByte(pc++); unsigned short sa = ca - v; COMPUTE_CARRY_FLAGS_8(r.a, v, sa); SET_FLAG(N_FLAG); r.a = (uint8_t)sa; m = 2; }
 
 void Cpu::CPr_b() { unsigned short a = r.a; unsigned short s = a - r.b; COMPUTE_CARRY_FLAGS_8(a, r.b, s); SET_FLAG(N_FLAG); m = 1; }
 void Cpu::CPr_c() { unsigned short a = r.a; unsigned short s = a - r.c; COMPUTE_CARRY_FLAGS_8(a, r.c, s); SET_FLAG(N_FLAG); m = 1; }
