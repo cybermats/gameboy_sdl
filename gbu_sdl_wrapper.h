@@ -24,11 +24,14 @@ private:
         for(size_t i = 0; i < frame.size(); ++i)
         {
             auto c = frame[i];
-//            buffer[i] = c | c << 8 | c << 16 | c << 24;
-			if (c == 255)
-				buffer.at(i) = 0xFFFFFFFF;
-            else
-                buffer.at(i) = 0;
+			unsigned char r = c;
+			unsigned char g = c*(240.0/255);
+			unsigned char b = c*(180.0/255);
+            buffer[i] = b | g << 8 | r << 16 | 0xff << 24;
+//			if (c == 255)
+//				buffer.at(i) = 0xFFFFFFFF;
+//            else
+//                buffer.at(i) = 0;
 //            buffer[i] = c;
         }
         return true;
