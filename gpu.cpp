@@ -4,7 +4,7 @@
 Gpu::Gpu(MMU* mmu, Interrupts* interrupts)
 : _mmu(mmu)
 , _interrupts(interrupts)
-, _regs(11, 0)
+, _regs(0xc, 0)
 , _vram(0x2000, 0)
 , _paletteBg(4, 255)
 , _paletteObj0(4, 255)
