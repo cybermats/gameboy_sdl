@@ -62,7 +62,7 @@ Cpu::opinfo_t Cpu::opmap[256] = {
         { &Cpu::INCSP, "INCSP", 1 },
         { &Cpu::INCHLm, "INCHLm", 1 },
         { &Cpu::DECHLm, "DECHLm", 1 },
-        { &Cpu::LDHLmn, "LDHLmn", 3 },
+        { &Cpu::LDHLmn, "LDHLmn", 2 },
         { &Cpu::SCF, "SCF", 1 },
         { &Cpu::JRCn, "JRCn", 2 },
         { &Cpu::ADDHLSP, "ADDHLSP", 1 },
