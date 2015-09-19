@@ -147,8 +147,8 @@ void Gpu::checkline(uint64_t clockticks)
                                 if(obj.flags.bits.paletteNum) pal=_paletteObj1;
                                 else pal=_paletteObj0;
 
-                                linebase = (_currline *160+obj.x)*4;
-                                if(obj.flags.bits.xFlip)
+								linebase = (_currline * 160 + obj.x);
+								if (obj.flags.bits.xFlip)
                                 {
                                     for(x=0; x<8; x++)
                                     {
