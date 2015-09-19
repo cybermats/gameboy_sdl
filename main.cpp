@@ -36,7 +36,8 @@ int main() {
 	try
 	{
 #endif
-		Gbu gbu(filename);
+		bool printCallstack = true;
+		Gbu gbu(filename, printCallstack);
 		GbuSdlWrapper wrapper(&gbu);
 		wrapper.mainloop();
 #ifdef ENABLE_EXCEPTIONS

@@ -4,6 +4,7 @@
 #include "gpu.h"
 #include "interrupts.h"
 #include "gbu-timer.h"
+#include "joypad.h"
 #include <vector>
 
 class Gpu;
@@ -11,7 +12,7 @@ class Gpu;
 class MMU
 {
 public:
-    MMU(IMBC* mbc, Interrupts* interrupts, GbuTimer* timer);
+    MMU(IMBC* mbc, Interrupts* interrupts, GbuTimer* timer, Joypad* joypad);
 
     unsigned char readByte(unsigned short addr);
 
@@ -33,11 +34,17 @@ public:
 
     void setGpu(Gpu* gpu);
 
+	inline bool isBios()
+	{
+		return _isBios;
+	}
+
 private:
     IMBC* _mbc;
     Gpu* _gpu;
 	Interrupts* _interrupts;
 	GbuTimer* _timer;
+	Joypad* _joypad;
 
     const unsigned char* _romBank0;
     const unsigned char* _romBankN;

@@ -7,6 +7,7 @@
 #include "cartridge.h"
 #include "interrupts.h"
 #include "gbu-timer.h"
+#include "joypad.h"
 
 #include <memory>
 #include <iostream>
@@ -19,53 +20,52 @@
 class Gbu
 {
 public:
-    Gbu(const char* filename)
+    Gbu(const char* filename, bool print_callstack)
+		: _print_callstack(print_callstack)
     {
         Cartridge cartridge(filename);
         _mbc = cartridge.getMBC();
 		_interrupts = std::make_unique<Interrupts>();
 		_timer = std::make_unique<GbuTimer>(_interrupts.get());
-        _mmu = std::unique_ptr<MMU>(new MMU(_mbc.get(), _interrupts.get(), _timer.get()));
+		_joypad = std::make_unique<Joypad>(_interrupts.get());
+
+        _mmu = std::unique_ptr<MMU>(new MMU(_mbc.get(), _interrupts.get(), _timer.get(), _joypad.get()));
         _gpu = std::unique_ptr<Gpu>(new Gpu(_mmu.get(), _interrupts.get()));
         _mmu->setGpu(_gpu.get());
         _cpu = std::unique_ptr<Cpu>(new Cpu(_mmu.get(), _interrupts.get()));
 		
 
 
-		
-		_callstack_stream.open("callstack.txt");
+		if (_print_callstack)
+			_callstack_stream.open("callstack.txt");
 
     }
 
 	~Gbu()
 	{
-		_callstack_stream.close();
+		if (_print_callstack)
+			_callstack_stream.close();
 	}
 
     void runFrame()
     {
         while(!_gpu->hasImage())
         {
+			
 			int b = 0;
-			static volatile int a = 0xc321;
+			static volatile int a = 0x47f2;
 			static volatile int counter = 0;
 
 			if (_cpu->pc == a)
 				b = 1;
+			counter++;
 			
 
-			counter++;
-
-			_callstack.push_back(_cpu->pc);
-			if (counter > 1000)
-				_callstack.pop_front();
-//			_cpu->printStep(_callstack_stream);
-			printStep();
+			if (_print_callstack && !_mmu->isBios() && !_cpu->halt)
+				printStep();
 			_cpu->execute();
             _gpu->checkline(_cpu->m);
 			_timer->tick(_cpu->m);
-			if (_interrupts->readIME() && _interrupts->readIF())
-				_callstack_stream << "IRQ: " << std::hex << (int)_interrupts->readIF() << std::endl;
         }
     }
 
@@ -131,6 +131,10 @@ public:
 		for (auto j = 1; j < opitem.size; ++j)
 			_callstack_stream << std::setfill('0') << std::setw(2) << (int)_mmu->readByte(pc + j) << " ";
 		_callstack_stream << std::endl;
+
+		if (_interrupts->readIME() && _interrupts->readIF())
+			_callstack_stream << "IRQ: " << std::hex << (int)_interrupts->readIF() << std::endl;
+
 		_callstack_stream.flush();
 
 	}
@@ -143,6 +147,7 @@ private:
     std::unique_ptr<Cpu> _cpu;
 	std::unique_ptr<Interrupts> _interrupts;
 	std::unique_ptr<GbuTimer> _timer;
-	std::deque<uint16_t> _callstack;
+	std::unique_ptr<Joypad> _joypad;
 	std::ofstream _callstack_stream;
+	bool _print_callstack;
 };

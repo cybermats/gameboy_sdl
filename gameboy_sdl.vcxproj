@@ -29,6 +29,7 @@
     <ClInclude Include="gbu_sdl_wrapper.h" />
     <ClInclude Include="gpu.h" />
     <ClInclude Include="interrupts.h" />
+    <ClInclude Include="joypad.h" />
     <ClInclude Include="mbc.h" />
     <ClInclude Include="mmu.h" />
     <ClInclude Include="sdl_wrapper.h" />
