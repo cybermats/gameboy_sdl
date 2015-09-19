@@ -1,8 +1,9 @@
 #include "gpu.h"
 #include "mmu.h"
 
-Gpu::Gpu(MMU* mmu)
+Gpu::Gpu(MMU* mmu, Interrupts* interrupts)
 : _mmu(mmu)
+, _interrupts(interrupts)
 , _regs(11, 0)
 , _vram(0x2000, 0)
 , _paletteBg(4, 255)
@@ -43,7 +44,7 @@ void Gpu::checkline(uint64_t clockticks)
                 if(_currline == 143) {
                     _linemode = 1;
                     renderimage();
-                    _mmu->setIF(0x1);
+					_interrupts->flagInterrupt(Interrupts::Vblank);
                 }
                 else {
                     _linemode = 2;
@@ -136,7 +137,7 @@ void Gpu::checkline(uint64_t clockticks)
                         for(auto i=0; i<40; i++)
                         {
                             auto& obj = _spriteData.at(i);
-                            if(obj.y <= _currline && (obj.y+8) > _currline)
+                            if((obj.y <= _currline) && (((uint32_t)(obj.y+8)) > _currline))
                             {
                                 if(obj.flags.bits.yFlip)
                                     tilerow = _tilemap.at(obj.patternNum).at(7-(_currline -obj.y));

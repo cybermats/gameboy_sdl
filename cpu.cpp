@@ -30,12 +30,12 @@ void Cpu::printCode(size_t numCmds)
 
 }
 
-void Cpu::printStep()
+void Cpu::printStep(std::ostream& os)
 {
-    std::cout << " A ZNHC  BC   DE   HL   SP   PC  Im   Op  Mne" << std::endl;
-    std::cout << std::hex
-            << std::setfill('0') << std::setw(2)
-            << (int)r.a
+    os << " AF  ZNHC  BC   DE   HL   SP   PC   Op  IME  IE   IF  Mne" << std::endl;
+    os << std::hex
+            << std::setfill('0') << std::setw(4)
+            << (int)r.af
             << " "
             << ((r.f & Z_FLAG)?"1":"0")
             << ((r.f & N_FLAG)?"1":"0")
@@ -61,13 +61,16 @@ void Cpu::printStep()
         opcode = _mbc->readByte(pc+1);
         opitem = cbopmap[opcode];
     }
-    std::cout << std::hex ;
-    std::cout
-            << "[" << ((opitem.func != &Cpu::NOP) ? "X" : " ") << "] "
+    os << std::hex ;
+    os
             << "[" << std::setfill('0') << std::setw(2) << (int)opcode << "] "
+			<< "[" << ((_interrupts->readIME()) ? "E" : " ") << "] "
+			<< "[" << std::setfill('0')  << std::setw(2) << (int)_interrupts->readIE() << "] "
+			<< "[" << std::setfill('0')  << std::setw(2) << (int)_interrupts->readIF() << "] "
             << opitem.name << " ";
+
     for(auto j = 1; j < opitem.size; ++j)
-        std::cout << std::setfill('0') << std::setw(2) << (int)_mbc->readByte(pc + j) << " ";
-    std::cout << std::endl;
+        os << std::setfill('0') << std::setw(2) << (int)_mbc->readByte(pc + j) << " ";
+    os << std::endl;
 
 }

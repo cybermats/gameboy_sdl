@@ -642,7 +642,11 @@ void Cpu::JPZnn() { auto nn = _mbc->readShort(pc++); pc++; if(r.f & Z_FLAG) pc =
 void Cpu::JPNCnn() { auto nn = _mbc->readShort(pc++); pc++; if(!(r.f & C_FLAG)) pc = nn; m = 3; }
 void Cpu::JPCnn() { auto nn = _mbc->readShort(pc++); pc++; if(r.f & C_FLAG) pc = nn; m = 3; }
 
-void Cpu::JRn() { auto n = (char)_mbc->readByte(pc++); pc += n; m = 2; }
+void Cpu::JRn() { 
+	auto n = (char)_mbc->readByte(pc++); 
+	pc += n; 
+	m = 2; 
+}
 void Cpu::JRNZn() { auto n = (char)_mbc->readByte(pc++); if(!(r.f & Z_FLAG)) pc += n; m = 3; }
 void Cpu::JRZn() { auto n = (char)_mbc->readByte(pc++); if(r.f & Z_FLAG) pc += n; m = 3; }
 void Cpu::JRNCn() { auto n = (char)_mbc->readByte(pc++); if(!(r.f & C_FLAG)) pc += n; m = 3; }
@@ -655,7 +659,7 @@ void Cpu::CALLNCnn() { auto nn = _mbc->readShort(pc++); pc++; if(!(r.f & C_FLAG)
 void Cpu::CALLCnn() { auto nn = _mbc->readShort(pc++); pc++; if(r.f & C_FLAG) { sp -= 2; _mbc->writeShort(sp, pc); pc = nn; } m = 3; }
 
 void Cpu::RET() { pc = _mbc->readShort(sp); sp += 2; m = 2; }
-void Cpu::RETI() { ime = true; pc = _mbc->readShort(sp); sp += 2; m = 2; }
+void Cpu::RETI() { _interrupts->enableInterrupts(); pc = _mbc->readShort(sp); sp += 2; m = 2; }
 void Cpu::RETNZ() { if(!(r.f & Z_FLAG)) { pc = _mbc->readShort(sp); sp += 2; } m = 2; }
 void Cpu::RETZ() { if(r.f & Z_FLAG) { pc = _mbc->readShort(sp); sp += 2; } m = 2; }
 void Cpu::RETNC() { if(!(r.f & C_FLAG)) { pc = _mbc->readShort(sp); sp += 2; } m = 2; }
@@ -671,6 +675,9 @@ void Cpu::RST30() { sp -= 2; _mbc->writeShort(sp, pc); pc = 0x30; m = 8; }
 void Cpu::RST38() { sp -= 2; _mbc->writeShort(sp, pc); pc = 0x38; m = 8; }
 
 void Cpu::STOP() { halt = true; pc++; m = 1; }
-void Cpu::HALT() { halt = true; m = 1; }
-void Cpu::DI() { ime = false; m = 1; }
-void Cpu::EI() { ime = true; m = 1; }
+void Cpu::HALT() { 
+	halt = true; 
+	m = 1; 
+}
+void Cpu::DI() { _interrupts->disableInterrupts(); m = 1; }
+void Cpu::EI() { _interrupts->enableInterrupts(); m = 1; }

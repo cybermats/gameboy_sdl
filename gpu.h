@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <stdint.h>
 #include "mmu.h"
+#include "interrupts.h"
 
 #include <iostream>
 
@@ -11,7 +12,7 @@ class MMU;
 
 class Gpu {
 public:
-    Gpu(MMU *mmu);
+    Gpu(MMU *mmu, Interrupts *interrupts);
 
     void checkline(uint64_t clockticks);
 
@@ -188,6 +189,8 @@ public:
 
 
     MMU *_mmu;
+	Interrupts *_interrupts;
+
 
     uint64_t _modeclocks;
     uint8_t _linemode;

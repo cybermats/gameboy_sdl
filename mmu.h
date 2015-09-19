@@ -1,6 +1,9 @@
 #pragma once
 
 #include "mbc.h"
+#include "gpu.h"
+#include "interrupts.h"
+#include "gbu-timer.h"
 #include <vector>
 
 class Gpu;
@@ -8,7 +11,7 @@ class Gpu;
 class MMU
 {
 public:
-    MMU(IMBC* mbc);
+    MMU(IMBC* mbc, Interrupts* interrupts, GbuTimer* timer);
 
     unsigned char readByte(unsigned short addr);
 
@@ -28,21 +31,13 @@ public:
         writeByte(addr+1, second);
     }
 
-    void setIF(unsigned char flags)
-    {
-        _if |= flags;
-    }
-
-    void resetIF(unsigned char flags)
-    {
-        _if &= flags;
-    }
-
     void setGpu(Gpu* gpu);
 
 private:
     IMBC* _mbc;
     Gpu* _gpu;
+	Interrupts* _interrupts;
+	GbuTimer* _timer;
 
     const unsigned char* _romBank0;
     const unsigned char* _romBankN;
@@ -51,8 +46,6 @@ private:
     unsigned char* _wramBank0;
     unsigned char* _wramBankN;
     std::vector<unsigned char> _hram;
-    unsigned char _ier; // Interrupts Enable Register
-    unsigned char _if;
 
     std::vector<unsigned char> _workRam;
 

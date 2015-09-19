@@ -6,6 +6,7 @@
 #include "gpu.h"
 #include "gbu.h"
 #include "gbu_sdl_wrapper.h"
+#include "gbu-timer.h"
 
 using namespace std;
 

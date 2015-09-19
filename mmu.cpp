@@ -1,8 +1,10 @@
 #include "mmu.h"
 #include "gpu.h"
 
-MMU::MMU(IMBC* mbc)
+MMU::MMU(IMBC* mbc, Interrupts* interrupts, GbuTimer* timer)
         : _mbc(mbc)
+		, _interrupts(interrupts)
+		, _timer(timer)
         , _gpu(nullptr)
         , _romBank0(nullptr)
         , _romBankN(nullptr)
@@ -11,7 +13,6 @@ MMU::MMU(IMBC* mbc)
         , _wramBank0(nullptr)
         , _wramBankN(nullptr)
         , _hram(0x7f, 0)
-        , _ier(0x0)
         , _workRam(0x2000, 0)
         , _isBios(true)
 {
@@ -84,7 +85,7 @@ unsigned char MMU::readByte(unsigned short addr)
                 return readIO(addr);
             if(addr < 0xFFFF) // HRAM 0xFF80 - 0xFFFE
                 return _hram.at(0x007F & addr);
-            return _ier; // Interrupts Enable Register
+			return _interrupts->readIE(); // Interrupts Enable Register
         }
         default:
             return 0; // Should never happen
@@ -166,7 +167,7 @@ void MMU::writeByte(unsigned short addr, unsigned char value)
                 _hram.at(0x007F & addr) = value;
                 return;
             }
-            _ier = value; // Interrupts Enable Register
+			_interrupts->writeIE(value);
             return;
         }
         default:
@@ -181,10 +182,10 @@ unsigned char MMU::readIO(unsigned short addr)
         return 0; // TODO
     if(addr < 0xFF04) // Serial port
         return 0;
-    if(addr < 0xFF08) // Timer
-        return 0; // TODO
+	if (addr < 0xFF08) // Timer
+		return _timer->read(addr);
     if(addr == 0xFF0F) // Interrupt flags
-        return _if; // TODO
+        return _interrupts->readIF(); // TODO
     if(addr < 0xFF40) // Sound
         return 0; // Ignore?
     if(addr < 0xFF4C) {
@@ -200,10 +201,12 @@ void MMU::writeIO(unsigned short addr, unsigned char value)
         return; // TODO:
     if(addr < 0xFF04) // Serial port
         return;
-    if(addr < 0xFF08) // Timer
-        return; // TODO
+	if (addr < 0xFF08) { // Timer
+		_timer->write(addr, value);
+		return; // TODO
+	}
     if(addr == 0xFF0F) { // Interrupt flags
-        _if = value;
+		_interrupts->writeIF(value);
         return; // TODO
     }
     if(addr < 0xFF40) // Sound

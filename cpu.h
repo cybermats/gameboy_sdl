@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mmu.h"
+#include "interrupts.h"
 
 #include <stdint.h>
 #include <iostream>
@@ -69,9 +70,10 @@ private:
 
 public:
 
-    Cpu(MMU* mbc)
+    Cpu(MMU* mbc, Interrupts* interrupts)
         : _mbc(mbc)
-        , pc(0)
+		, _interrupts(interrupts)
+        , pc(0x0100)
         , sp(0)
         , m(0)
     {
@@ -84,10 +86,15 @@ public:
 
     void execute()
     {
-        // Fetch
-        uint8_t opcode = _mbc->readByte(pc++);
-        // Decode
-        (this->*opmap[opcode].func)();
+		if (!halt)
+		{
+			// Fetch
+			uint8_t opcode = _mbc->readByte(pc++);
+			// Decode
+			(this->*opmap[opcode].func)();
+
+		}
+		checkInterrupts();
     }
 
     void MAPcb()
@@ -100,7 +107,7 @@ public:
 
     void printCode(size_t numCmds);
 
-    void printStep();
+	void printStep(std::ostream& os);
 
 
     uint16_t getPc() const { return pc; }
@@ -109,19 +116,40 @@ public:
 
     void decode();
 
+	void checkInterrupts()
+	{
+		uint16_t irq = _interrupts->getInterrupts();
+		if (irq)
+		{
+			sp -= 2; 
+			_mbc->writeShort(sp, pc);
+			pc = irq;
+			m += 3;
+			halt = false;
+		}
+		else
+		{
+			if (halt)
+			{
+				if (_interrupts->readIF())
+					halt = false;
+			}
+		}
+	}
+
 
     MMU* _mbc;
+	Interrupts* _interrupts;
 
     uint16_t pc;
     uint16_t sp;
 	
 	Registers r;
 
-    bool ime;
     bool halt;
 
     // Clock
-    uint64_t m;
+    uint32_t m;
 
     typedef void(Cpu::*opfunc_t)();
 
