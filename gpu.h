@@ -77,14 +77,8 @@ public:
     void updateOAM(unsigned short addr, unsigned char value) {
         addr &= 0x00FF;
         assert((addr >> 2) < 40);
-        _spriteData.at(addr >> 2)[addr & 3] = value;
-        std::sort(_spriteData.begin(), _spriteData.end(),
-                [](const SpriteData &a, const SpriteData &b) {
-                    if (a.x < b.x) return true;
-                    if (a.patternNum < b.patternNum) return true;
-                    return false;
-                });
-
+        _spriteData[addr >> 2][addr & 3] = value;
+        std::sort(_spriteData.begin(), _spriteData.end());
     }
 
     void updateTile(unsigned short addr, unsigned char value) {
@@ -185,6 +179,16 @@ public:
                     return y;
             }
         }
+
+		bool operator<(const SpriteData& other)
+		{
+			if (x < other.x) return true;
+			if (x > other.x) return false;
+			if (patternNum < other.patternNum) return true;
+			if (patternNum > other.patternNum) return false;
+			if (y < other.y) return true;
+			return false;
+		}
     };
 
 
