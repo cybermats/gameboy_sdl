@@ -39,7 +39,9 @@ size_t Cartridge::getRamSize(const std::vector<unsigned char>& buffer)
     switch (buffer[0x149])
     {
         case 0:
-            return 0;
+			// Fix for Super Mario.
+			return 0x2000;
+			return 0;
         case 1:
             return 2048;
         case 2:
