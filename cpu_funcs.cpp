@@ -674,7 +674,11 @@ void Cpu::RST28() { sp -= 2; _mbc->writeShort(sp, pc); pc = 0x28; m = 8; }
 void Cpu::RST30() { sp -= 2; _mbc->writeShort(sp, pc); pc = 0x30; m = 8; }
 void Cpu::RST38() { sp -= 2; _mbc->writeShort(sp, pc); pc = 0x38; m = 8; }
 
-void Cpu::STOP() { halt = true; pc++; m = 1; }
+void Cpu::STOP() { 
+	halt = true; 
+	pc++;
+	m = 1; 
+}
 void Cpu::HALT() { 
 	halt = true; 
 	m = 1; 
