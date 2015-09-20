@@ -205,7 +205,7 @@ void Gpu::renderScanline()
 	int mapOffset = _tileMap;
 	mapOffset += (((_scanline + _scrollY) & 255) >> 3) << 5;
 
-	int lineOffset = (_scrollX);
+	int lineOffset = (_scrollX >> 3) & 31;
 
 	int x = _scrollX & 7;
 	int y = (_scanline + _scrollY) & 7;
@@ -250,32 +250,37 @@ void Gpu::renderScanline()
 
 	if (_spriteEnable)
 	{
+		unsigned char sprite_height = _spriteVDouble ? 16 : 8;
+		unsigned char sprite_width = 8;
 		for (int i = 0; i < 40; ++i)
 		{
 			const auto& sprite = _spriteData.at(i);
-			auto sx = sprite.x;
-			auto sy = sprite.y;
-			if (sx == 0 && sy == 0)
+			if (sprite.x == 0 && sprite.y == 0)
 				continue;
 
-			if (sy <= _scanline && (sy + 8) > _scanline)
+			auto sx = sprite.x - 8;
+			auto sy = sprite.y - 16;
+
+			if (sy <= _scanline && (sy + sprite_height) > _scanline)
 			{
 				const auto& pal = sprite.flags.bits.paletteNum ? _paletteObj1 : _paletteObj0;
 
 				int pixelOffset = _scanline * 160 + sx;
 				unsigned char tileRow = _scanline - sy;
-				if (sprite.flags.bits.xFlip)
+				if (sprite.flags.bits.yFlip)
 					tileRow = 7 - tileRow;
 
-				for (int x = 0; x < 8; ++x)
+				unsigned char tile = sprite.patternNum & (_spriteVDouble ? 0xfe : 0xff);
+
+				for (int x = 0; x < sprite_width; ++x)
 				{
 					if ((sx + x) >= 0 && (sx + x < 160) && (~sprite.flags.bits.prio || !scanlineRow[sx + x]))
 					{
 						unsigned char color;
-						if (sprite.flags.bits.yFlip)
-							color = _tiles.at(sprite.patternNum).at(tileRow).at(7 - x);
+						if (sprite.flags.bits.xFlip)
+							color = _tiles.at(tile).at(tileRow).at(7 - x);
 						else
-							color = _tiles.at(sprite.patternNum).at(tileRow).at(x);
+							color = _tiles.at(tile).at(tileRow).at(x);
 
 						if (color)
 						{
