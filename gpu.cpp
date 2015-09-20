@@ -113,12 +113,14 @@ void Gpu::writeIO(unsigned short addr, unsigned char value)
     switch(gaddr)
     {
         case 0:
-            _displayEnable = (value&0x80)?1:0;
-            _tileSet = (value&0x10)?0x0000:0x0800;
-            _tileMap = (value&0x08)?0x1C00:0x1800;
-            _spriteVDouble = (value&0x04)?1:0;
-            _spriteEnable = (value&0x02)?1:0;
-            _bgEnable = (value&0x01)?1:0;
+			_displayEnable = (value&(1 << 7)) ? 1 : 0;
+			_windowTileMap = (value&(1 << 6)) ? 0x9c00 : 0x9800;
+			_windowEnabled = (value & (1 << 5)) ? 1 : 0;
+			_tileSet = (value&(1 << 4)) ? 0x0000 : 0x0800;
+			_tileMap = (value&(1 << 3)) ? 0x1C00 : 0x1800;
+			_spriteVDouble = (value&(1 << 2)) ? 1 : 0;
+			_spriteEnable = (value&(1 << 1)) ? 1 : 0;
+			_bgEnable = (value&(1 << 0)) ? 1 : 0;
             break;
 
 		case 1:

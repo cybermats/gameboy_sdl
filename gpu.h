@@ -269,8 +269,10 @@ public:
 	bool _spriteEnable;
 	bool _spriteVDouble;
 	bool _displayEnable;
+	bool _windowEnabled;
 	uint16_t _tileMap;
 	uint16_t _tileSet;
+	uint16_t _windowTileMap;
 
 	// GPU registers
 	uint8_t _scrollX;
