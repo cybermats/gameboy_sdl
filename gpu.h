@@ -81,7 +81,7 @@ public:
         addr &= 0x00FF;
         assert((addr >> 2) < 40);
         _spriteData[addr >> 2][addr & 3] = value;
-        std::sort(_spriteData.begin(), _spriteData.end());
+//        std::sort(_spriteData.begin(), _spriteData.end());
     }
 
     void updateTile(unsigned short addr, unsigned char value) {
