@@ -196,37 +196,92 @@ public:
 		}
     };
 
+	void writeTilesToFile()
+	{
+		std::ofstream file("tiles.raw");
+		std::ofstream filebg("tilesbg.data", std::ofstream::binary);
+		std::ofstream fileobj0("tilesobj0.data", std::ofstream::binary);
+		std::ofstream fileobj1("tilesobj1.data", std::ofstream::binary);
+		for (auto& tile : _tiles)
+		{
+			for (auto& row : tile)
+			{
+				for (auto& cell : row)
+				{
+					switch (cell)
+					{
+					case 0:
+						file << " "; break;
+					case 1:
+						file << "."; break;
+					case 2:
+						file << "|"; break;
+					case 3:
+						file << "*"; break;
+					default:
+						break;
+					}
+
+					auto bgc = _paletteBg.at(cell);
+					auto obj0c = _paletteObj0.at(cell);
+					auto obj1c = _paletteObj1.at(cell);
+					filebg << bgc << bgc << bgc;
+					fileobj0 << obj0c << obj0c << obj0c;
+					fileobj1 << obj1c << obj1c << obj1c;
+				}
+				file << std::endl;
+			}
+			file << std::endl;
+		}
+	}
+
 
     MMU *_mmu;
 	Interrupts *_interrupts;
 
+	std::vector<unsigned char> _regs;
+	std::vector<unsigned char> _oam;
+	std::vector<unsigned char> _vram;
+	std::vector<std::vector<std::vector<uint8_t>>> _tiles;
+	std::vector<uint8_t> _scanrow;
+	std::vector<uint8_t> _screenData;
+	std::vector<uint8_t> _paletteBg;
+	std::vector<uint8_t> _paletteObj0;
+	std::vector<uint8_t> _paletteObj1;
+	std::vector<SpriteData> _spriteData;
 
-    uint64_t _modeclocks;
+	uint32_t _currscan;
+	uint8_t _raster;
+
     uint8_t _linemode;
-    uint32_t _currline;
-    uint32_t _currscan;
-    uint16_t _bgmapbase;
-    uint16_t _bgtilebase;
-    uint8_t _xscrl;
-    uint8_t _yscrl;
-    uint32_t _raster;
 
-    bool _lcdOn;
-    bool _bgOn;
-    bool _spriteOn;
-    bool _spriteSize;
 
-    std::vector<unsigned char> _regs;
-    std::vector<unsigned char> _vram;
-    std::vector<unsigned char> _oam;
-    std::vector<std::vector<std::vector<uint8_t>>> _tilemap;
-    std::vector<uint8_t> _scanrow;
-    std::vector<uint8_t> _screenData;
-    std::vector<uint8_t> _paletteBg;
-    std::vector<uint8_t> _paletteObj0;
-    std::vector<uint8_t> _paletteObj1;
-    std::vector<SpriteData> _spriteData;
+
+
+
 
     bool _hasImage;
 
+
+
+	// Control registers
+	bool _bgEnable;
+	bool _spriteEnable;
+	bool _spriteVDouble;
+	bool _displayEnable;
+	uint16_t _tileMap;
+	uint16_t _tileSet;
+
+	// GPU registers
+	uint8_t _scrollX;
+	uint8_t _scrollY;
+	uint8_t _scanline;
+	uint64_t _modeclocks;
+	bool _lycLyCoincidenceFlag;
+
+	// STAT interrupt selections
+	bool _lycLyCoincidenceSelection;
+	bool _mode10;
+	bool _mode01;
+	bool _mode00;
 };

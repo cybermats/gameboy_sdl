@@ -53,11 +53,16 @@ public:
         {
 			
 			int b = 0;
-			static volatile int a = 0x47f2;
+			static volatile int a = 0x0296;
 			static volatile int counter = 0;
 
+
 			if (_cpu->pc == a)
+			{
 				b = 1;
+				_gpu->writeTilesToFile();
+				a = 0;
+			}
 			counter++;
 			
 
@@ -139,6 +144,10 @@ public:
 
 	}
 
+	Joypad* joypad()
+	{
+		return _joypad.get();
+	}
 
 private:
     std::unique_ptr<IMBC> _mbc;
