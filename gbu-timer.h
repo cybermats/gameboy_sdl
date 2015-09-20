@@ -15,7 +15,7 @@ public:
 		, tac_on(false)
 	{}
 
-	void tick(uint32_t m)
+	void tick(uint16_t m)
 	{
 		auto oldCounter = counter;
 		counter += 4*m;

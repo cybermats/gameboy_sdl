@@ -116,7 +116,7 @@ public:
 
     void decode();
 
-	void checkInterrupts()
+	inline void checkInterrupts()
 	{
 		uint16_t irq = _interrupts->getInterrupts();
 		if (irq)
@@ -141,15 +141,16 @@ public:
     MMU* _mbc;
 	Interrupts* _interrupts;
 
-    uint16_t pc;
+	// Clock
+	uint16_t m;
+	
+	uint16_t pc;
     uint16_t sp;
 	
 	Registers r;
 
     bool halt;
 
-    // Clock
-    uint32_t m;
 
     typedef void(Cpu::*opfunc_t)();
 

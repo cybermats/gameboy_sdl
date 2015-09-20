@@ -20,7 +20,7 @@ public:
 		, interrupt_flagged(None)
 	{}
 
-	uint16_t getInterrupts()
+	inline uint16_t getInterrupts()
 	{
 		if (interrupt_master_enable && interrupt_enabled && interrupt_flagged)
 		{
@@ -65,7 +65,7 @@ public:
 
 	uint8_t readIF()
 	{
-		return interrupt_flagged;
+		return (uint8_t)interrupt_flagged;
 	}
 
 	void writeIF(uint8_t value)

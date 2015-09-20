@@ -11,6 +11,8 @@ public:
     virtual unsigned char* getRamBank() = 0;
 
     virtual void update(unsigned short addr, unsigned char value) = 0;
+
+	virtual ~IMBC(){}
 };
 
 class MBC1 : public IMBC
@@ -32,9 +34,9 @@ public:
 
     virtual const unsigned char *getRomBankN() const override
     {
-        size_t romBank = _romSelector & 0x001f;
+		auto romBank = (size_t)_romSelector & 0x1f;
         if(!_ramMode)
-            romBank += (0x0003 & _ramSelector) << 5;
+            romBank +=  (0x0003 & _ramSelector) << 5;
         return &_rom.at(0x4000 * romBank);
     }
 
@@ -43,7 +45,7 @@ public:
         if(_ram.empty())
             return nullptr;
 
-        size_t ramBank = 0;
+        auto ramBank = (size_t)0;
         if(_ramMode)
             ramBank = 0x0003 & _ramSelector;
         return &_ram.at(0x2000 * ramBank);

@@ -1,7 +1,7 @@
-#include "cartridge.h"
 #include <fstream>
-
 #include <iostream>
+
+#include "cartridge.h"
 
 Cartridge::Cartridge(const char *filename)
     : _filename(filename)
@@ -58,7 +58,7 @@ std::vector<unsigned char> Cartridge::readFile(const char* filename)
     std::ifstream file(filename, std::ios::binary|std::ios::ate);
 	if (!file.good())
 		throw "Unable to read file: " + std::string(filename);
-    std::streampos size = file.tellg();
+    auto size = file.tellg();
     std::vector<unsigned char> buffer(size);
     file.seekg(0, std::ios::beg);
     file.read((char*)&buffer[0], size);
