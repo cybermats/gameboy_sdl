@@ -3,6 +3,9 @@
 #include <vector>
 #include <algorithm>
 #include <stdint.h>
+#include <iostream>
+#include <fstream>
+#include <iomanip>
 #include "mmu.h"
 #include "interrupts.h"
 
@@ -46,23 +49,23 @@ public:
         auto gaddr = addr - 0xFF40;
         switch (gaddr) {
             case 0:
-                return (_lcdOn ? 0x80 : 0) |
-                        ((_bgtilebase == 0x0000) ? 0x10 : 0) |
-                        ((_bgmapbase == 0x1C00) ? 0x08 : 0) |
-                        (_spriteSize ? 0x04 : 0) |
-                        (_spriteOn ? 0x02 : 0) |
-                        (_bgOn ? 0x01 : 0);
+                return (_displayEnable ? 0x80 : 0) |
+                        ((_tileSet == 0x0000) ? 0x10 : 0) |
+                        ((_tileMap == 0x1C00) ? 0x08 : 0) |
+                        (_spriteVDouble ? 0x04 : 0) |
+                        (_spriteEnable ? 0x02 : 0) |
+                        (_bgEnable ? 0x01 : 0);
             case 1:
-                return (_currline == _raster ? 4 : 0) | _linemode;
+                return (_lycLyCoincidenceFlag ? 4 : 0) | _linemode;
 
             case 2:
-                return _yscrl;
+                return _scrollY;
 
             case 3:
-                return _xscrl;
+                return _scrollX;
 
             case 4:
-                return _currline;
+                return _scanline;
 
             case 5:
                 return _raster;
@@ -89,7 +92,7 @@ public:
         auto y = (addr >> 1) & 7;
         for (auto x = 0; x < 8; ++x) {
             auto sx = 1 << (7 - x);
-            _tilemap.at(tile).at(y).at(x) = ((_vram.at(saddr) & sx) ? 1 : 0) | ((_vram.at(saddr + 1) & sx) ? 2 : 0);
+            _tiles.at(tile).at(y).at(x) = ((_vram.at(saddr) & sx) ? 1 : 0) | ((_vram.at(saddr + 1) & sx) ? 2 : 0);
         }
     }
 
@@ -119,9 +122,11 @@ public:
 
         }
         */
-//        std::cout << "x: " << (unsigned int)_xscrl << ", y: " << (unsigned int)_yscrl << std::endl;
+//        std::cout << "x: " << (unsigned int)_scrollX << ", y: " << (unsigned int)_scrollY << std::endl;
         _hasImage = true;
     }
+
+	void renderScanline();
 
     bool hasImage()
     {
