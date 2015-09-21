@@ -268,9 +268,12 @@ void Gpu::renderScanline()
 				int pixelOffset = _scanline * 160 + sx;
 				unsigned char tileRow = _scanline - sy;
 				if (sprite.flags.bits.yFlip)
-					tileRow = 7 - tileRow;
+					tileRow = sprite_height - tileRow - 1;
 
 				unsigned char tile = sprite.patternNum & (_spriteVDouble ? 0xfe : 0xff);
+				if (tileRow & 8)
+					tile++;
+				tileRow = tileRow & 7;
 
 				for (int x = 0; x < sprite_width; ++x)
 				{
