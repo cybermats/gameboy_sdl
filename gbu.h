@@ -20,7 +20,7 @@
 class Gbu
 {
 public:
-    Gbu(const char* filename, bool print_callstack)
+    Gbu(const char* filename, bool print_callstack = false)
 		: _print_callstack(print_callstack)
     {
         Cartridge cartridge(filename);
@@ -51,7 +51,7 @@ public:
     {
         while(!_gpu->hasImage())
         {
-			
+			/*
 			int b = 0;
 			static volatile int a = 0x0296;
 			static volatile int counter = 0;
@@ -64,7 +64,7 @@ public:
 				a = 0;
 			}
 			counter++;
-			
+			*/
 
 			if (_print_callstack && !_mmu->isBios() && !_cpu->halt)
 				printStep();
