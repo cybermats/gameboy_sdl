@@ -1,6 +1,8 @@
 #include <fstream>
 #include <iostream>
+#include <string>
 
+#include "gb_exception.h"
 #include "cartridge.h"
 
 Cartridge::Cartridge(const char *filename)
@@ -10,24 +12,34 @@ Cartridge::Cartridge(const char *filename)
 
 std::unique_ptr<IMBC> Cartridge::getMBC() {
     std::cout << "getMBC" << std::endl;
-    std::vector<unsigned char> buffer = readFile(_filename);
+	std::vector<unsigned char> buffer = readFile(_filename);
+	_title = getTitle(buffer);
     unsigned char mbcType = getCartridgeType(buffer);
-    std::cout << "cartridge type:" << mbcType << std::endl;
     size_t ramSize = getRamSize(buffer);
-    std::cout << "Ram size:" << ramSize << std::endl;
-    std::vector<unsigned char> ram(ramSize, 0);
+
+	std::cout << "Title: " << _title << std::endl;
+	std::cout << "cartridge type:" << (int)mbcType << std::endl;
+	std::cout << "Ram size:" << ramSize << std::endl;
+
+	// Fix things
+	if (_title == "SUPER MARIOLAND")
+		ramSize = 0x2000;
+
 
     switch (mbcType)
     {
-        case 0x01:
-        case 0x02:
-        case 0x03:
-            return std::unique_ptr<IMBC>(new MBC1(buffer, ram));
-        default:
-            return std::unique_ptr<IMBC>();
-
+	case 0x00:
+		return std::unique_ptr<IMBC>(new ROM(buffer));
+    case 0x01:
+    case 0x02:
+    case 0x03:
+		return std::unique_ptr<IMBC>(new MBC1(buffer, std::vector<unsigned char>(ramSize, 0)));
+    default:
+		throw gb_exception("Unknown cartridge type.");
     }
 }
+
+
 
 unsigned char Cartridge::getCartridgeType(const std::vector<unsigned char>& buffer)
 {
@@ -39,8 +51,6 @@ size_t Cartridge::getRamSize(const std::vector<unsigned char>& buffer)
     switch (buffer[0x149])
     {
         case 0:
-			// Fix for Super Mario.
-			return 0x2000;
 			return 0;
         case 1:
             return 2048;
@@ -64,4 +74,12 @@ std::vector<unsigned char> Cartridge::readFile(const char* filename)
     file.read((char*)&buffer[0], size);
     file.close();
     return buffer;
+}
+
+std::string Cartridge::getTitle(const std::vector<unsigned char>& buffer)
+{
+	auto titleStart = (char*)&buffer[0x134];
+	auto len = strnlen(titleStart, 16);
+	std::string title(titleStart, len);
+	return title;
 }

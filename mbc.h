@@ -1,4 +1,7 @@
 #pragma once
+
+#include "gb_exception.h"
+
 #include <vector>
 
 class IMBC
@@ -14,6 +17,44 @@ public:
 
 	virtual ~IMBC(){}
 };
+
+class ROM : public IMBC
+{
+public:
+	ROM(std::vector<unsigned char> rom)
+		: _rom(rom)
+	{
+		if (_rom.size() != 0x8000)
+			throw gb_exception("This cartridge type is only supported for 32kb.");
+	}
+
+
+	virtual const unsigned char *getRomBank0() const override
+	{
+		return &_rom[0];
+	}
+
+	virtual const unsigned char *getRomBankN() const override
+	{
+		return &_rom[0x4000];
+	}
+
+	virtual unsigned char *getRamBank() override
+	{
+		return nullptr;
+	}
+
+	virtual void update(unsigned short addr, unsigned char value) override
+	{
+	}
+
+private:
+	std::vector<unsigned char> _rom;
+	unsigned char _romSelector;
+};
+
+
+
 
 class MBC1 : public IMBC
 {
