@@ -252,9 +252,13 @@ void Gpu::renderScanline()
 	{
 		unsigned char sprite_height = _spriteVDouble ? 16 : 8;
 		unsigned char sprite_width = 8;
+
+		std::vector<SpriteData> sprites(_spriteData.begin(), _spriteData.end());
+		std::sort(sprites.begin(), sprites.end());
+
 		for (int i = 0; i < 40; ++i)
 		{
-			const auto& sprite = _spriteData.at(i);
+			const auto& sprite = sprites.at(i);
 			if (sprite.x == 0 && sprite.y == 0)
 				continue;
 
