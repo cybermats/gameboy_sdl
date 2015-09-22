@@ -19,14 +19,16 @@ Gpu::Gpu(MMU* mmu, Interrupts* interrupts)
 , _scrollY(0)
 , _scrollX(0)
 , _raster(0)
-, _displayEnable(false)
-, _bgEnable(false)
-, _spriteEnable(false)
+, _enableDisplay(false)
+, _enableBackground(false)
+, _enableSprite(false)
+, _enableWindow(false)
 , _spriteVDouble(0)
 , _scanrow(160, 0)
 , _spriteData(40)
 , _tileSet(0x0000)
-, _tileMap(0x1800)
+, _tileMapBackground(0x1800)
+, _tileMapWindow(0x1800)
 , _hasImage(false)
 , _lycLyCoincidenceFlag(false)
 , _lycLyCoincidenceSelection(false)
@@ -113,14 +115,14 @@ void Gpu::writeIO(unsigned short addr, unsigned char value)
     switch(gaddr)
     {
         case 0:
-			_displayEnable = (value&(1 << 7)) ? 1 : 0;
-			_windowTileMap = (value&(1 << 6)) ? 0x9c00 : 0x9800;
-			_windowEnabled = (value & (1 << 5)) ? 1 : 0;
+			_enableDisplay = (value&(1 << 7)) ? 1 : 0;
+			_tileMapWindow = (value&(1 << 6)) ? 0x1C00 : 0x1800;
+			_enableWindow = (value & (1 << 5)) ? 1 : 0;
 			_tileSet = (value&(1 << 4)) ? 0x0000 : 0x0800;
-			_tileMap = (value&(1 << 3)) ? 0x1C00 : 0x1800;
+			_tileMapBackground = (value&(1 << 3)) ? 0x1C00 : 0x1800;
 			_spriteVDouble = (value&(1 << 2)) ? 1 : 0;
-			_spriteEnable = (value&(1 << 1)) ? 1 : 0;
-			_bgEnable = (value&(1 << 0)) ? 1 : 0;
+			_enableSprite = (value&(1 << 1)) ? 1 : 0;
+			_enableBackground = (value&(1 << 0)) ? 1 : 0;
             break;
 
 		case 1:
@@ -197,37 +199,44 @@ void Gpu::writeIO(unsigned short addr, unsigned char value)
                 }
             }
             break;
+		case 0xa:
+			_windowY = value;
+			break;
+		case 0xb:
+			_windowX = value;
+			break;
     }
 }
 
 void Gpu::renderScanline()
 {
-	int mapOffset = _tileMap;
-	mapOffset += (((_scanline + _scrollY) & 255) >> 3) << 5;
-
-	int lineOffset = (_scrollX >> 3) & 31;
-
-	int x = _scrollX & 7;
-	int y = (_scanline + _scrollY) & 7;
-
-	int pixelOffset = _scanline * 160;
-
-	unsigned short tile = _vram.at(mapOffset + lineOffset);
-	if (_tileSet && tile < 0x80)
-		tile += 0x100;
 
 	unsigned char scanlineRow[160];
 
-	if (!_displayEnable)
+	if (!_enableDisplay)
 	{
+		int pixelOffset = _scanline * 160;
 		for (int i = 0; i < 160; ++i)
 			_screenData[i + pixelOffset] = 255;
 		return;
 	}
 
 	// if bg enabled
-	if (_bgEnable)
+	if (_enableBackground)
 	{
+		int pixelOffset = _scanline * 160;
+		int mapOffset = _tileMapBackground;
+		mapOffset += (((_scanline + _scrollY) & 255) >> 3) << 5;
+		int lineOffset = (_scrollX >> 3) & 0x1F;
+
+		int x = _scrollX & 7;
+		int y = (_scanline + _scrollY) & 7;
+
+
+		unsigned short tile = _vram.at(mapOffset + lineOffset);
+		if (_tileSet && tile < 0x80)
+			tile += 0x100;
+
 		for (int i = 0; i < 160; ++i)
 		{
 			unsigned char color = _tiles.at(tile).at(y).at(x);
@@ -248,7 +257,45 @@ void Gpu::renderScanline()
 		}
 	}
 
-	if (_spriteEnable)
+	if (_enableWindow)
+	{
+		if (_windowY <= _scanline)
+		{
+			int pixelOffset = _scanline * 160 + _windowX - 7;
+			int mapOffset = _tileMapWindow;
+			mapOffset += (((_scanline - _windowY) & 255) >> 3) << 5;
+			int lineOffset = 0;
+
+			int x = (_windowX - 7) & 7;
+			int y = _scanline & 7;
+
+			unsigned short tile = _vram.at(mapOffset + lineOffset);
+			if (_tileSet && tile < 0x80)
+				tile += 0x100;
+
+			for (int i = _windowX - 7; i < 160; ++i)
+			{
+				auto color = _tiles.at(tile).at(y).at(x);
+				scanlineRow[i] = color;
+
+				_screenData[pixelOffset] = _paletteBg.at(color);
+
+				++pixelOffset;
+				++x;
+				if (x == 8)
+				{
+					x = 0;
+					lineOffset = (lineOffset + 1) & 31;
+					tile = _vram.at(mapOffset + lineOffset);
+					if (_tileSet && tile < 0x80)
+						tile += 0x100;
+				}
+			}
+
+		}
+	}
+
+	if (_enableSprite)
 	{
 		unsigned char sprite_height = _spriteVDouble ? 16 : 8;
 		unsigned char sprite_width = 8;
@@ -281,7 +328,7 @@ void Gpu::renderScanline()
 
 				for (int x = 0; x < sprite_width; ++x)
 				{
-					if ((sx + x) >= 0 && (sx + x < 160) && (~sprite.flags.bits.prio || !scanlineRow[sx + x]))
+					if ((sx + x) >= 0 && (sx + x < 160) && (!sprite.flags.bits.prio || !scanlineRow[sx + x]))
 					{
 						unsigned char color;
 						if (sprite.flags.bits.xFlip)

@@ -49,12 +49,14 @@ public:
         auto gaddr = addr - 0xFF40;
         switch (gaddr) {
             case 0:
-                return (_displayEnable ? 0x80 : 0) |
-                        ((_tileSet == 0x0000) ? 0x10 : 0) |
-                        ((_tileMap == 0x1C00) ? 0x08 : 0) |
+                return (_enableDisplay ? 0x80 : 0) |
+						((_tileMapWindow == 0x1C00) ? 0x40 : 0) |
+						(_enableWindow ? 0x20 : 0) |
+						((_tileSet == 0x0000) ? 0x10 : 0) |
+                        ((_tileMapBackground == 0x1C00) ? 0x08 : 0) |
                         (_spriteVDouble ? 0x04 : 0) |
-                        (_spriteEnable ? 0x02 : 0) |
-                        (_bgEnable ? 0x01 : 0);
+                        (_enableSprite ? 0x02 : 0) |
+                        (_enableBackground ? 0x01 : 0);
             case 1:
                 return (_lycLyCoincidenceFlag ? 4 : 0) | _linemode;
 
@@ -70,6 +72,12 @@ public:
             case 5:
                 return _raster;
 
+			case 0xa:
+				return _windowY;
+
+			case 0xb:
+				return _windowX;
+
             default:
                 return _regs.at(gaddr);
         }
@@ -81,7 +89,6 @@ public:
         addr &= 0x00FF;
         assert((addr >> 2) < 40);
         _spriteData[addr >> 2][addr & 3] = value;
-//        std::sort(_spriteData.begin(), _spriteData.end());
     }
 
     void updateTile(unsigned short addr, unsigned char value) {
@@ -106,23 +113,6 @@ public:
     }
 
     void renderimage() {
-        /*
-        std::cout << "Render image" << std::endl;
-        for(auto y = 0; y < 144; y+=10)
-        {
-            for(auto x = 0; x < 160 * 3; x+=10)
-            {
-                auto idx = y * (160*3) + x;
-                char c = '*';
-                if(_screenData.at(idx) < 255 )
-                    c = ' ';
-                std::cout << c;
-            }
-            std::cout << std::endl;
-
-        }
-        */
-//        std::cout << "x: " << (unsigned int)_scrollX << ", y: " << (unsigned int)_scrollY << std::endl;
         _hasImage = true;
     }
 
@@ -265,14 +255,16 @@ public:
 
 
 	// Control registers
-	bool _bgEnable;
-	bool _spriteEnable;
+	bool _enableBackground;
+	bool _enableSprite;
 	bool _spriteVDouble;
-	bool _displayEnable;
-	bool _windowEnabled;
-	uint16_t _tileMap;
+	bool _enableDisplay;
+	bool _enableWindow;
+	uint16_t _tileMapBackground;
 	uint16_t _tileSet;
-	uint16_t _windowTileMap;
+	uint16_t _tileMapWindow;
+	uint8_t _windowY;
+	uint8_t _windowX;
 
 	// GPU registers
 	uint8_t _scrollX;
