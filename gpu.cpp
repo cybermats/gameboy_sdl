@@ -293,8 +293,8 @@ void Gpu::renderScanline()
 						{
 							_screenData[pixelOffset] = pal.at(color);
 						}
-						++pixelOffset;
 					}
+					++pixelOffset;
 				}
 			}
 		}
