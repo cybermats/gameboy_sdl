@@ -12,7 +12,7 @@ class GbuSdlWrapper : public SDL_Wrapper {
 
 public:
     GbuSdlWrapper(Gbu* gbu)
-            : SDL_Wrapper(640, 480, 160, 144, 15)
+            : SDL_Wrapper(160*4, 144*4, 160, 144, 15)
     , _gbu(gbu)
     {
     }
