@@ -67,9 +67,11 @@ std::vector<unsigned char> Cartridge::readFile(const char* filename)
 {
     std::ifstream file(filename, std::ios::binary|std::ios::ate);
 	if (!file.good())
-		throw "Unable to read file: " + std::string(filename);
+		throw gb_exception("Unable to read file: " + std::string(filename));
     auto size = file.tellg();
-    std::vector<unsigned char> buffer(size);
+	if (size < 0)
+		throw gb_exception("Error getting size of file.");
+    std::vector<unsigned char> buffer((size_t)size);
     file.seekg(0, std::ios::beg);
     file.read((char*)&buffer[0], size);
     file.close();

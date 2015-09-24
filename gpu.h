@@ -91,7 +91,7 @@ public:
         _spriteData[addr >> 2][addr & 3] = value;
     }
 
-    void updateTile(unsigned short addr, unsigned char value) {
+    void updateTile(unsigned short addr, unsigned char) {
         if (addr & 1)
             addr--;
         auto saddr = addr & 0x1FFF;
@@ -150,7 +150,7 @@ public:
         };
     public:
         SpriteData()
-                : y(-16), x(-8), patternNum(0), flags({0}) {
+                : y(0), x(0), patternNum(0), flags({0}) {
         }
 
         uint8_t y;

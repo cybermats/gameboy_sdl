@@ -15,7 +15,10 @@ public:
 		return _message.c_str();
 	}
 
+	gb_exception(const gb_exception&) = default;
+	gb_exception& operator=(const gb_exception&) = default;
+
 private:
-	const std::string _message;
+	std::string _message;
 };
 	

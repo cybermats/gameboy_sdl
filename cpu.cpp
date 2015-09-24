@@ -20,7 +20,7 @@ void Cpu::printCode(size_t numCmds)
                 << "[" << std::setfill('0') << std::setw(4) << localPc << "] "
                 << "[" << std::setfill('0') << std::setw(2) << (int)opcode << "] "
                 << opitem.name << " ";
-        for(auto j = 1; j < opitem.size; ++j)
+        for(uint8_t j = 1; j < opitem.size; ++j)
             std::cout << std::setfill('0') << std::setw(2) << (int)_mbc->readByte(localPc + j) << " ";
         std::cout << std::endl;
         localPc += opitem.size;
@@ -69,7 +69,7 @@ void Cpu::printStep(std::ostream& os)
 			<< "[" << std::setfill('0')  << std::setw(2) << (int)_interrupts->readIF() << "] "
             << opitem.name << " ";
 
-    for(auto j = 1; j < opitem.size; ++j)
+    for(uint8_t j = 1; j < opitem.size; ++j)
         os << std::setfill('0') << std::setw(2) << (int)_mbc->readByte(pc + j) << " ";
     os << std::endl;
 

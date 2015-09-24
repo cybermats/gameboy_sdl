@@ -20,8 +20,8 @@ private:
     }
 
     virtual bool Display(std::vector<uint32_t>& buffer) = 0;
-    virtual void KeyDown(SDL_Keysym keysym) {}
-    virtual void KeyUp(SDL_Keysym keysym) {}
+    virtual void KeyDown(SDL_Keysym) {}
+    virtual void KeyUp(SDL_Keysym) {}
 
     friend class SDL_Wrapper_Impl;
     class SDL_Wrapper_Impl;

@@ -16,6 +16,7 @@
     <ClCompile Include="cpu_funcs.cpp" />
     <ClCompile Include="cpu_maps.cpp" />
     <ClCompile Include="gbu-timer.cpp" />
+    <ClCompile Include="gbu_sdl_wrapper.cpp" />
     <ClCompile Include="gpu.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mmu.cpp" />

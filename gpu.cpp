@@ -152,9 +152,9 @@ void Gpu::writeIO(unsigned short addr, unsigned char value)
         case 6:
             for(auto i=0; i<160; i++)
             {
-                auto v = _mmu->readByte((value<<8)+i);
+                auto v = _mmu->readByte((uint16_t)((value<<8)+i));
                 _oam.at(i) = v;
-                updateOAM(0xFE00+i, v);
+                updateOAM((uint16_t)(0xFE00+i), v);
             }
             break;
 
@@ -316,8 +316,8 @@ void Gpu::renderScanline()
 			{
 				const auto& pal = sprite.flags.bits.paletteNum ? _paletteObj1 : _paletteObj0;
 
-				int pixelOffset = _scanline * 160 + sx;
-				unsigned char tileRow = _scanline - sy;
+				auto pixelOffset = _scanline * 160 + sx;
+				auto tileRow = (uint8_t)(_scanline - sy);
 				if (sprite.flags.bits.yFlip)
 					tileRow = sprite_height - tileRow - 1;
 

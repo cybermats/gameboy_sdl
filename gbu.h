@@ -133,7 +133,7 @@ public:
 			<< "[" << std::setfill('0') << std::setw(2) << (int)_timer->tac << "] "
 			<< opitem.name << " ";
 
-		for (auto j = 1; j < opitem.size; ++j)
+		for (uint8_t j = 1; j < opitem.size; ++j)
 			_callstack_stream << std::setfill('0') << std::setw(2) << (int)_mmu->readByte(pc + j) << " ";
 		_callstack_stream << std::endl;
 

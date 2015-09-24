@@ -42,6 +42,9 @@
     <ClCompile Include="gbu-timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gbu_sdl_wrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cartridge.h">

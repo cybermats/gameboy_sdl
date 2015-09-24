@@ -44,7 +44,7 @@ public:
 		return nullptr;
 	}
 
-	virtual void update(unsigned short addr, unsigned char value) override
+	virtual void update(unsigned short, unsigned char) override
 	{
 	}
 
