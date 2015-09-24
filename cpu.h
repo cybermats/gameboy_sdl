@@ -73,7 +73,7 @@ public:
     Cpu(MMU* mbc, Interrupts* interrupts)
         : _mbc(mbc)
 		, _interrupts(interrupts)
-        , pc(0x0000)
+        , pc(0x0100)
         , sp(0)
         , m(0)
     {
