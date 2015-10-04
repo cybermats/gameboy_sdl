@@ -149,11 +149,7 @@ void Cpu::LDADEm() { r.a = _mbc->readByte(r.de); m = 2; }
 void Cpu::LDAmm() { r.a = _mbc->readByte( _mbc->readShort(pc++)); pc++; m = 4; }
 
 void Cpu::LDBCnn() { r.c = _mbc->readByte(pc++); r.b = _mbc->readByte(pc++); m = 3; }
-void Cpu::LDDEnn() { 
-	r.e = _mbc->readByte(pc++); 
-	r.d = _mbc->readByte(pc++); 
-	m = 3; 
-}
+void Cpu::LDDEnn() { r.e = _mbc->readByte(pc++); r.d = _mbc->readByte(pc++); m = 3; }
 void Cpu::LDHLnn() { r.l = _mbc->readByte(pc++); r.h = _mbc->readByte(pc++); m = 3; }
 void Cpu::LDSPnn() { sp = _mbc->readShort(pc++); pc++; m = 3; }
 
