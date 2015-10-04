@@ -160,7 +160,7 @@ public:
         unsigned char size;
     };
 
-    void NOP() { m = 4; }
+    void NOP() { m = 1; }
 
     // Load/Store
 
