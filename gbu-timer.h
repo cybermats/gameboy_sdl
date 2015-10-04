@@ -9,6 +9,8 @@ class GbuTimer
 public:
 	GbuTimer(Interrupts* interrupts)
 		: _interrupts(interrupts)
+		, counter(0x00)
+//		, counter(0xab00)
 		, tima(0)
 		, tma(0)
 		, tac(0)
@@ -36,14 +38,12 @@ public:
 		case 3:
 			mod = 256; break;
 		}
-		bool tick_tima = false;
 		auto newCounter = oldCounter + 4 * m; // handle overflows
-		if ((newCounter / mod) > (oldCounter / mod))
-			tick_tima = true;
+		auto tima_ticks = (newCounter / mod) - (oldCounter / mod);
 
-		if (tick_tima)
+		for (int i = 0; i < tima_ticks; ++i)
 		{
-			tima++;
+			++tima;
 			if (!tima)
 			{
 				tima = tma;
@@ -60,11 +60,11 @@ public:
 	uint8_t tima;
 	uint8_t tma;
 	uint8_t tac;
+	uint16_t counter;
 private:
 	Interrupts* _interrupts;
 
 
-	uint16_t counter;
 	bool tac_on;
 
 };
