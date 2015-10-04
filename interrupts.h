@@ -22,9 +22,9 @@ public:
 
 	inline uint16_t getInterrupts()
 	{
-		if (interrupt_master_enable && interrupt_enabled && interrupt_flagged)
+		auto fire = interrupt_enabled & interrupt_flagged;
+		if (interrupt_master_enable && fire)
 		{
-			auto fire = interrupt_enabled & interrupt_flagged;
 			interrupt_master_enable = false;
 			if (fire & Vblank)
 			{
@@ -57,10 +57,7 @@ public:
 
 	void flagInterrupt(InterruptFlag flag)
 	{
-		if (interrupt_enabled & flag)
-		{
-			interrupt_flagged = (InterruptFlag)(interrupt_flagged | flag);
-		}
+		interrupt_flagged = (InterruptFlag)(interrupt_flagged | flag);
 	}
 
 	uint8_t readIF()

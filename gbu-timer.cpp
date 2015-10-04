@@ -21,7 +21,7 @@ void GbuTimer::write(unsigned short addr, unsigned char value)
 	switch (addr)
 	{
 	case 0xFF04:
-		div = 0;
+		counter = 0;
 		return;
 	case 0xFF05:
 		tima = value;

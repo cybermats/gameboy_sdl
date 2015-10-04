@@ -37,7 +37,8 @@ public:
 			mod = 256; break;
 		}
 		bool tick_tima = false;
-		if ((counter % mod) < (oldCounter % mod))
+		auto newCounter = oldCounter + 4 * m; // handle overflows
+		if ((newCounter / mod) > (oldCounter / mod))
 			tick_tima = true;
 
 		if (tick_tima)
