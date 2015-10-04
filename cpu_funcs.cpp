@@ -335,7 +335,7 @@ void Cpu::BIT0e() { BIT_CHECK(r.e, 0); m = 2; }
 void Cpu::BIT0h() { BIT_CHECK(r.h, 0); m = 2; }
 void Cpu::BIT0l() { BIT_CHECK(r.l, 0); m = 2; }
 void Cpu::BIT0a() { BIT_CHECK(r.a, 0); m = 2; }
-void Cpu::BIT0m() { BIT_CHECK(_mbc->readByte(r.hl), 0); m = 4; }
+void Cpu::BIT0m() { BIT_CHECK(_mbc->readByte(r.hl), 0); m = 3; }
 
 void Cpu::RES0b() { r.b &= (0xFF ^ (1 << 0)); m = 2; }
 void Cpu::RES0c() { r.c &= (0xFF ^ (1 << 0)); m = 2; }
@@ -362,7 +362,7 @@ void Cpu::BIT1e() { BIT_CHECK(r.e, 1); m = 2; }
 void Cpu::BIT1h() { BIT_CHECK(r.h, 1); m = 2; }
 void Cpu::BIT1l() { BIT_CHECK(r.l, 1); m = 2; }
 void Cpu::BIT1a() { BIT_CHECK(r.a, 1); m = 2; }
-void Cpu::BIT1m() { BIT_CHECK(_mbc->readByte(r.hl), 1); m = 4; }
+void Cpu::BIT1m() { BIT_CHECK(_mbc->readByte(r.hl), 1); m = 3; }
 
 void Cpu::RES1b() { r.b &= (0xFF ^ (1 << 1)); m = 2; }
 void Cpu::RES1c() { r.c &= (0xFF ^ (1 << 1)); m = 2; }
@@ -389,7 +389,7 @@ void Cpu::BIT2e() { BIT_CHECK(r.e, 2); m = 2; }
 void Cpu::BIT2h() { BIT_CHECK(r.h, 2); m = 2; }
 void Cpu::BIT2l() { BIT_CHECK(r.l, 2); m = 2; }
 void Cpu::BIT2a() { BIT_CHECK(r.a, 2); m = 2; }
-void Cpu::BIT2m() { BIT_CHECK(_mbc->readByte(r.hl), 2); m = 4; }
+void Cpu::BIT2m() { BIT_CHECK(_mbc->readByte(r.hl), 2); m = 3; }
 
 void Cpu::RES2b() { r.b &= (0xFF ^ (1 << 2)); m = 2; }
 void Cpu::RES2c() { r.c &= (0xFF ^ (1 << 2)); m = 2; }
@@ -416,7 +416,7 @@ void Cpu::BIT3e() { BIT_CHECK(r.e, 3); m = 2; }
 void Cpu::BIT3h() { BIT_CHECK(r.h, 3); m = 2; }
 void Cpu::BIT3l() { BIT_CHECK(r.l, 3); m = 2; }
 void Cpu::BIT3a() { BIT_CHECK(r.a, 3); m = 2; }
-void Cpu::BIT3m() { BIT_CHECK(_mbc->readByte(r.hl), 3); m = 4; }
+void Cpu::BIT3m() { BIT_CHECK(_mbc->readByte(r.hl), 3); m = 3; }
 
 void Cpu::RES3b() { r.b &= (0xFF ^ (1 << 3)); m = 2; }
 void Cpu::RES3c() { r.c &= (0xFF ^ (1 << 3)); m = 2; }
@@ -443,7 +443,7 @@ void Cpu::BIT4e() { BIT_CHECK(r.e, 4); m = 2; }
 void Cpu::BIT4h() { BIT_CHECK(r.h, 4); m = 2; }
 void Cpu::BIT4l() { BIT_CHECK(r.l, 4); m = 2; }
 void Cpu::BIT4a() { BIT_CHECK(r.a, 4); m = 2; }
-void Cpu::BIT4m() { BIT_CHECK(_mbc->readByte(r.hl), 4); m = 4; }
+void Cpu::BIT4m() { BIT_CHECK(_mbc->readByte(r.hl), 4); m = 3; }
 
 void Cpu::RES4b() { r.b &= (0xFF ^ (1 << 4)); m = 2; }
 void Cpu::RES4c() { r.c &= (0xFF ^ (1 << 4)); m = 2; }
@@ -470,7 +470,7 @@ void Cpu::BIT5e() { BIT_CHECK(r.e, 5); m = 2; }
 void Cpu::BIT5h() { BIT_CHECK(r.h, 5); m = 2; }
 void Cpu::BIT5l() { BIT_CHECK(r.l, 5); m = 2; }
 void Cpu::BIT5a() { BIT_CHECK(r.a, 5); m = 2; }
-void Cpu::BIT5m() { BIT_CHECK(_mbc->readByte(r.hl), 5); m = 4; }
+void Cpu::BIT5m() { BIT_CHECK(_mbc->readByte(r.hl), 5); m = 3; }
 
 void Cpu::RES5b() { r.b &= (0xFF ^ (1 << 5)); m = 2; }
 void Cpu::RES5c() { r.c &= (0xFF ^ (1 << 5)); m = 2; }
@@ -497,7 +497,7 @@ void Cpu::BIT6e() { BIT_CHECK(r.e, 6); m = 2; }
 void Cpu::BIT6h() { BIT_CHECK(r.h, 6); m = 2; }
 void Cpu::BIT6l() { BIT_CHECK(r.l, 6); m = 2; }
 void Cpu::BIT6a() { BIT_CHECK(r.a, 6); m = 2; }
-void Cpu::BIT6m() { BIT_CHECK(_mbc->readByte(r.hl), 6); m = 4; }
+void Cpu::BIT6m() { BIT_CHECK(_mbc->readByte(r.hl), 6); m = 3; }
 
 void Cpu::RES6b() { r.b &= (0xFF ^ (1 << 6)); m = 2; }
 void Cpu::RES6c() { r.c &= (0xFF ^ (1 << 6)); m = 2; }
@@ -524,7 +524,7 @@ void Cpu::BIT7e() { BIT_CHECK(r.e, 7); m = 2; }
 void Cpu::BIT7h() { BIT_CHECK(r.h, 7); m = 2; }
 void Cpu::BIT7l() { BIT_CHECK(r.l, 7); m = 2; }
 void Cpu::BIT7a() { BIT_CHECK(r.a, 7); m = 2; }
-void Cpu::BIT7m() { BIT_CHECK(_mbc->readByte(r.hl), 7); m = 4; }
+void Cpu::BIT7m() { BIT_CHECK(_mbc->readByte(r.hl), 7); m = 3; }
 
 void Cpu::RES7b() { r.b &= (0xFF ^ (1 << 7)); m = 2; }
 void Cpu::RES7c() { r.c &= (0xFF ^ (1 << 7)); m = 2; }
@@ -631,7 +631,7 @@ void Cpu::POPAF() { r.af = 0xFFF0 & _mbc->readShort(sp); sp+=2; m = 3;}
 
 /* Jumps */
 
-void Cpu::JPnn() { auto nn = _mbc->readShort(pc++); pc++; pc = nn; m = 3; }
+void Cpu::JPnn() { auto nn = _mbc->readShort(pc++); pc++; pc = nn; m = 4; }
 void Cpu::JPHL() { pc = r.hl; m = 1; }
 void Cpu::JPNZnn() { auto nn = _mbc->readShort(pc++); pc++; m = 3; if (!(r.f & Z_FLAG)) { pc = nn; ++m; } }
 void Cpu::JPZnn() { auto nn = _mbc->readShort(pc++); pc++; m = 3; if (r.f & Z_FLAG) { pc = nn; ++m; } }
@@ -641,7 +641,7 @@ void Cpu::JPCnn() { auto nn = _mbc->readShort(pc++); pc++; m = 3; if (r.f & C_FL
 void Cpu::JRn() { 
 	auto n = (char)_mbc->readByte(pc++); 
 	pc += n; 
-	m = 2; 
+	m = 3; 
 }
 void Cpu::JRNZn() { auto n = (char)_mbc->readByte(pc++); m = 2; if (!(r.f & Z_FLAG)) { pc += n; m = 3; } }
 void Cpu::JRZn()  { auto n = (char)_mbc->readByte(pc++); m = 2; if (r.f & Z_FLAG)    { pc += n; m = 3; } }
