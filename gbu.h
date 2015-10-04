@@ -20,7 +20,7 @@
 class Gbu
 {
 public:
-    Gbu(const char* filename, bool print_callstack = false)
+    Gbu(const char* filename, bool useBios, bool print_callstack)
 		: _print_callstack(print_callstack)
     {
         Cartridge cartridge(filename);
@@ -29,10 +29,10 @@ public:
 		_timer = std::make_unique<GbuTimer>(_interrupts.get());
 		_joypad = std::make_unique<Joypad>(_interrupts.get());
 
-        _mmu = std::unique_ptr<MMU>(new MMU(_mbc.get(), _interrupts.get(), _timer.get(), _joypad.get()));
+        _mmu = std::unique_ptr<MMU>(new MMU(_mbc.get(), _interrupts.get(), _timer.get(), _joypad.get(), useBios));
         _gpu = std::unique_ptr<Gpu>(new Gpu(_mmu.get(), _interrupts.get()));
         _mmu->setGpu(_gpu.get());
-        _cpu = std::unique_ptr<Cpu>(new Cpu(_mmu.get(), _interrupts.get()));
+        _cpu = std::unique_ptr<Cpu>(new Cpu(_mmu.get(), _interrupts.get(), useBios));
 		
 
 

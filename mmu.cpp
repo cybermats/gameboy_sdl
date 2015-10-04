@@ -1,7 +1,7 @@
 #include "mmu.h"
 #include "gpu.h"
 
-MMU::MMU(IMBC* mbc, Interrupts* interrupts, GbuTimer* timer, Joypad* joypad)
+MMU::MMU(IMBC* mbc, Interrupts* interrupts, GbuTimer* timer, Joypad* joypad, bool useBios)
         : _mbc(mbc)
 		, _interrupts(interrupts)
 		, _timer(timer)
@@ -15,7 +15,7 @@ MMU::MMU(IMBC* mbc, Interrupts* interrupts, GbuTimer* timer, Joypad* joypad)
         , _wramBankN(nullptr)
         , _hram(0x7f, 0)
         , _workRam(0x2000, 0)
-        , _isBios(true)
+        , _isBios(useBios)
 {
     _romBank0 = _mbc->getRomBank0();
     _romBankN = _mbc->getRomBankN();

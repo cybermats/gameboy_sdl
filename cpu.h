@@ -70,10 +70,10 @@ private:
 
 public:
 
-    Cpu(MMU* mbc, Interrupts* interrupts)
+    Cpu(MMU* mbc, Interrupts* interrupts, bool useBios)
         : _mbc(mbc)
 		, _interrupts(interrupts)
-        , pc(0x0100)
+        , pc(useBios ? 0x0 : 0x0100)
         , sp(0)
         , m(0)
     {

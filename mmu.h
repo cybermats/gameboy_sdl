@@ -12,7 +12,7 @@ class Gpu;
 class MMU
 {
 public:
-    MMU(IMBC* mbc, Interrupts* interrupts, GbuTimer* timer, Joypad* joypad);
+    MMU(IMBC* mbc, Interrupts* interrupts, GbuTimer* timer, Joypad* joypad, bool useBios);
 
     unsigned char readByte(unsigned short addr);
 
