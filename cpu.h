@@ -97,7 +97,8 @@ public:
 			// Execute
 			cycles = 0;
 			(this->*opmap[opcode].func)();
-			_timer->tick(cycles);
+			if (opcode != 0xcb)
+				_timer->tick(cycles);
 			cycles += opmap[opcode].cycles;
 
 		}
@@ -111,6 +112,8 @@ public:
     {
         // Fetch
         uint8_t opcode = _mbc->readByte(pc++);
+		// Decode
+		_timer->tick(cbopmap[opcode].cycles);
 		// Execute
 		(this->*cbopmap[opcode].func)();
 		cycles += cbopmap[opcode].cycles;
