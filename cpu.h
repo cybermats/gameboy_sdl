@@ -70,12 +70,12 @@ private:
 
 public:
 
-    Cpu(MMU* mbc, Interrupts* interrupts, bool useBios)
+	Cpu(MMU* mbc, Interrupts* interrupts, GbuTimer* timer, bool useBios)
         : _mbc(mbc)
 		, _interrupts(interrupts)
+		, _timer(timer)
         , pc(useBios ? 0x0 : 0x0100)
         , sp(0)
-        , m(0)
     {
 		r.af = 0;
 		r.bc = 0;
@@ -90,10 +90,20 @@ public:
 		{
 			// Fetch
 			uint8_t opcode = _mbc->readByte(pc++);
+
 			// Decode
+			_timer->tick(opmap[opcode].cycles);
+
+			// Execute
+			cycles = 0;
 			(this->*opmap[opcode].func)();
+			_timer->tick(cycles);
+			cycles += opmap[opcode].cycles;
 
 		}
+		else
+			_timer->tick(cycles); // fix for HALT
+
 		checkInterrupts();
     }
 
@@ -101,9 +111,10 @@ public:
     {
         // Fetch
         uint8_t opcode = _mbc->readByte(pc++);
-        // Decode
-        (this->*cbopmap[opcode].func)();
-    }
+		// Execute
+		(this->*cbopmap[opcode].func)();
+		cycles += cbopmap[opcode].cycles;
+	}
 
     void printCode(size_t numCmds);
 
@@ -124,7 +135,8 @@ public:
 			sp -= 2; 
 			_mbc->writeShort(sp, pc);
 			pc = irq;
-			m += 3;
+			_timer->tick(3); // tick ahead
+			cycles += 3;
 			halt = false;
 		}
 		else
@@ -140,9 +152,10 @@ public:
 
     MMU* _mbc;
 	Interrupts* _interrupts;
+	GbuTimer* _timer;
 
 	// Clock
-	uint16_t m;
+	uint8_t cycles;
 	
 	uint16_t pc;
     uint16_t sp;
@@ -158,9 +171,10 @@ public:
         opfunc_t func;
         const char* name;
         unsigned char size;
+		unsigned char cycles;
     };
 
-    void NOP() { m = 1; }
+    void NOP() { }
 
     // Load/Store
 

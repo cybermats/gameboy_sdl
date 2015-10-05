@@ -39,6 +39,7 @@ public:
 		case 0xff01:
 			sb = value;
 			_serial_stream << sb;
+			_serial_stream.flush();
 			return;
 		case 0xff02:
 			sc = value;

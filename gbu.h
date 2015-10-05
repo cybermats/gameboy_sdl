@@ -34,7 +34,7 @@ public:
         _mmu = std::unique_ptr<MMU>(new MMU(_mbc.get(), _interrupts.get(), _timer.get(), _joypad.get(), _serial.get(), useBios));
         _gpu = std::unique_ptr<Gpu>(new Gpu(_mmu.get(), _interrupts.get()));
         _mmu->setGpu(_gpu.get());
-        _cpu = std::unique_ptr<Cpu>(new Cpu(_mmu.get(), _interrupts.get(), useBios));
+        _cpu = std::unique_ptr<Cpu>(new Cpu(_mmu.get(), _interrupts.get(), _timer.get(), useBios));
 		
 
 
@@ -53,26 +53,19 @@ public:
     {
         while(!_gpu->hasImage())
         {
-			/*
-			int b = 0;
-			static volatile int a = 0x0296;
-			static volatile int counter = 0;
-
-
+#if 1
+			static volatile int a = 0xc2b4;
 			if (_cpu->pc == a)
 			{
-				b = 1;
-				_gpu->writeTilesToFile();
 				a = 0;
 			}
-			counter++;
-			*/
+#endif
 
 			if (_print_callstack && !_mmu->isBios() && !_cpu->halt)
 				printStep();
 			_cpu->execute();
-            _gpu->checkline(_cpu->m);
-			_timer->tick(_cpu->m);
+            _gpu->checkline(_cpu->cycles);
+//			_timer->tick(_cpu->m);
         }
     }
 
@@ -92,7 +85,7 @@ public:
 		static int counter = 0;
 		if ((counter++)%16 == 0)
 		{
-			_callstack_stream << " AF  ZNHC  BC   DE   HL   SP   PC   Op  IME  IE   IF  DIV  TIMA TMA  TAC  Mne" << std::endl;
+			_callstack_stream << " AF  ZNHC  BC   DE   HL   SP   PC   Op  IME  IE   IF  DIV  TIMA TMA  TAC Counter Mne" << std::endl;
 		}
 
 		_callstack_stream << std::hex
@@ -133,6 +126,8 @@ public:
 			<< "[" << std::setfill('0') << std::setw(2) << (int)_timer->tima << "] "
 			<< "[" << std::setfill('0') << std::setw(2) << (int)_timer->tma << "] "
 			<< "[" << std::setfill('0') << std::setw(2) << (int)_timer->tac << "] "
+			<< "[" << std::setfill('0') << std::setw(4) << (int)_timer->counter << "]  "
+
 			<< opitem.name << " ";
 
 		for (uint8_t j = 1; j < opitem.size; ++j)
