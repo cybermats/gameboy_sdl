@@ -35,7 +35,7 @@ void Cpu::printStep(std::ostream& os)
     os << " AF  ZNHC  BC   DE   HL   SP   PC   Op  IME  IE   IF  Mne" << std::endl;
     os << std::hex
             << std::setfill('0') << std::setw(4)
-            << (int)r.af
+			<< (int)r.af()
             << " "
             << ((r.f & Z_FLAG)?"1":"0")
             << ((r.f & N_FLAG)?"1":"0")
@@ -43,11 +43,11 @@ void Cpu::printStep(std::ostream& os)
             << ((r.f & C_FLAG)?"1":"0")
             << " "
             << std::setfill('0') << std::setw(4)
-            << r.bc << " "
+            << r.bc() << " "
             << std::setfill('0') << std::setw(4)
-            << r.de << " "
+            << r.de() << " "
             << std::setfill('0') << std::setw(4)
-            << r.hl << " "
+            << r.hl() << " "
             << std::setfill('0') << std::setw(4)
             << sp << " "
             << std::setfill('0') << std::setw(4)

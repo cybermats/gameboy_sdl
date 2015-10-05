@@ -112,21 +112,21 @@ void Cpu::LDrr_ah() { r.a = r.h; }
 void Cpu::LDrr_al() { r.a = r.l; }
 void Cpu::LDrr_aa() { r.a = r.a; }
 
-void Cpu::LDrHLm_b() { r.b = _mbc->readByte(r.hl); }
-void Cpu::LDrHLm_c() { r.c = _mbc->readByte(r.hl); }
-void Cpu::LDrHLm_d() { r.d = _mbc->readByte(r.hl); }
-void Cpu::LDrHLm_e() { r.e = _mbc->readByte(r.hl); }
-void Cpu::LDrHLm_h() { r.h = _mbc->readByte(r.hl); }
-void Cpu::LDrHLm_l() { r.l = _mbc->readByte(r.hl); }
-void Cpu::LDrHLm_a() { r.a = _mbc->readByte(r.hl); }
+void Cpu::LDrHLm_b() { r.b = _mbc->readByte(r.hl()); }
+void Cpu::LDrHLm_c() { r.c = _mbc->readByte(r.hl()); }
+void Cpu::LDrHLm_d() { r.d = _mbc->readByte(r.hl()); }
+void Cpu::LDrHLm_e() { r.e = _mbc->readByte(r.hl()); }
+void Cpu::LDrHLm_h() { r.h = _mbc->readByte(r.hl()); }
+void Cpu::LDrHLm_l() { r.l = _mbc->readByte(r.hl()); }
+void Cpu::LDrHLm_a() { r.a = _mbc->readByte(r.hl()); }
 
-void Cpu::LDHLmr_b() { _mbc->writeByte(r.hl, r.b); }
-void Cpu::LDHLmr_c() { _mbc->writeByte(r.hl, r.c); }
-void Cpu::LDHLmr_d() { _mbc->writeByte(r.hl, r.d); }
-void Cpu::LDHLmr_e() { _mbc->writeByte(r.hl, r.e); }
-void Cpu::LDHLmr_h() { _mbc->writeByte(r.hl, r.h); }
-void Cpu::LDHLmr_l() { _mbc->writeByte(r.hl, r.l); }
-void Cpu::LDHLmr_a() { _mbc->writeByte(r.hl, r.a); }
+void Cpu::LDHLmr_b() { _mbc->writeByte(r.hl(), r.b); }
+void Cpu::LDHLmr_c() { _mbc->writeByte(r.hl(), r.c); }
+void Cpu::LDHLmr_d() { _mbc->writeByte(r.hl(), r.d); }
+void Cpu::LDHLmr_e() { _mbc->writeByte(r.hl(), r.e); }
+void Cpu::LDHLmr_h() { _mbc->writeByte(r.hl(), r.h); }
+void Cpu::LDHLmr_l() { _mbc->writeByte(r.hl(), r.l); }
+void Cpu::LDHLmr_a() { _mbc->writeByte(r.hl(), r.a); }
 
 void Cpu::LDrn_b() { r.b = _mbc->readByte(pc++); }
 void Cpu::LDrn_c() { r.c = _mbc->readByte(pc++); }
@@ -136,15 +136,15 @@ void Cpu::LDrn_h() { r.h = _mbc->readByte(pc++); }
 void Cpu::LDrn_l() { r.l = _mbc->readByte(pc++); }
 void Cpu::LDrn_a() { r.a = _mbc->readByte(pc++); }
 
-void Cpu::LDHLmn() { _mbc->writeByte(r.hl, _mbc->readByte(pc++)); }
+void Cpu::LDHLmn() { _mbc->writeByte(r.hl(), _mbc->readByte(pc++)); }
 
-void Cpu::LDBCmA() { _mbc->writeByte(r.bc, r.a); }
-void Cpu::LDDEmA() { _mbc->writeByte(r.de, r.a); }
+void Cpu::LDBCmA() { _mbc->writeByte(r.bc(), r.a); }
+void Cpu::LDDEmA() { _mbc->writeByte(r.de(), r.a); }
 
 void Cpu::LDmmA() { _mbc->writeByte(_mbc->readShort(pc++), r.a); pc++; }
 
-void Cpu::LDABCm() { r.a = _mbc->readByte(r.bc); }
-void Cpu::LDADEm() { r.a = _mbc->readByte(r.de); }
+void Cpu::LDABCm() { r.a = _mbc->readByte(r.bc()); }
+void Cpu::LDADEm() { r.a = _mbc->readByte(r.de()); }
 
 void Cpu::LDAmm() { r.a = _mbc->readByte( _mbc->readShort(pc++)); pc++; }
 
@@ -153,20 +153,28 @@ void Cpu::LDDEnn() { r.e = _mbc->readByte(pc++); r.d = _mbc->readByte(pc++); }
 void Cpu::LDHLnn() { r.l = _mbc->readByte(pc++); r.h = _mbc->readByte(pc++); }
 void Cpu::LDSPnn() { sp = _mbc->readShort(pc++); pc++; }
 
-void Cpu::LDHLIA() { _mbc->writeByte(r.hl, r.a); r.hl++; }
-void Cpu::LDAHLI() { r.a = _mbc->readByte(r.hl); r.hl++; }
+void Cpu::LDHLIA() { 
+	auto hl = r.hl(); 
+	_mbc->writeByte(hl, r.a); 
+	r.hl(hl + 1); 
+}
+void Cpu::LDAHLI() { 
+	auto hl = r.hl(); 
+	r.a = _mbc->readByte(hl); 
+	r.hl(hl + 1); 
+}
 
-void Cpu::LDHLDA() { _mbc->writeByte(r.hl, r.a); r.hl--; }
-void Cpu::LDAHLD() { r.a = _mbc->readByte(r.hl); r.hl--; }
+void Cpu::LDHLDA() { auto hl = r.hl(); _mbc->writeByte(hl, r.a); r.hl(hl - 1); }
+void Cpu::LDAHLD() { auto hl = r.hl(); r.a = _mbc->readByte(hl); r.hl(hl - 1); }
 
 void Cpu::LDAIOn() { r.a = _mbc->readByte(0xFF00 + _mbc->readByte(pc++)); }
 void Cpu::LDIOnA() { _mbc->writeByte(0xFF00 + _mbc->readByte(pc++), r.a); }
 void Cpu::LDAIOC() { r.a = _mbc->readByte(0xFF00 + r.c); }
 void Cpu::LDIOCA() { _mbc->writeByte(0xFF00 + r.c, r.a); }
 
-void Cpu::LDHLSPn() { unsigned int rsp = sp; char v = (char)_mbc->readByte(pc++); rsp += v; COMPUTE_CARRY_FLAGS_16_8(sp, v, rsp); RESET_FLAG(Z_FLAG); r.hl = (uint16_t)rsp; }
+void Cpu::LDHLSPn() { unsigned int rsp = sp; char v = (char)_mbc->readByte(pc++); rsp += v; COMPUTE_CARRY_FLAGS_16_8(sp, v, rsp); RESET_FLAG(Z_FLAG); r.hl((uint16_t)rsp); }
 
-void Cpu::LDSPHL() { sp = r.hl; }
+void Cpu::LDSPHL() { sp = r.hl(); }
 
 void Cpu::LDmmSP() { auto mm = _mbc->readShort(pc++); pc++; _mbc->writeShort(mm, sp); }
 
@@ -177,7 +185,7 @@ void Cpu::SWAPr_e() { auto v = r.e; r.e = ((v & 0xF0) >> 4) | ((v & 0x0F) << 4);
 void Cpu::SWAPr_h() { auto v = r.h; r.h = ((v & 0xF0) >> 4) | ((v & 0x0F) << 4); RESET_FLAG(ALL_FLAGS); if(!v) SET_FLAG(Z_FLAG); }
 void Cpu::SWAPr_l() { auto v = r.l; r.l = ((v & 0xF0) >> 4) | ((v & 0x0F) << 4); RESET_FLAG(ALL_FLAGS); if(!v) SET_FLAG(Z_FLAG); }
 void Cpu::SWAPr_a() { auto v = r.a; r.a = ((v & 0xF0) >> 4) | ((v & 0x0F) << 4); RESET_FLAG(ALL_FLAGS); if(!v) SET_FLAG(Z_FLAG); }
-void Cpu::SWAPHL() { auto v = _mbc->readByte(r.hl); v = ((v & 0xF0) >> 4) | ((v & 0x0F) << 4); _mbc->writeByte(r.hl, v); RESET_FLAG(ALL_FLAGS); if(!v) SET_FLAG(Z_FLAG); }
+void Cpu::SWAPHL() { auto v = _mbc->readByte(r.hl()); v = ((v & 0xF0) >> 4) | ((v & 0x0F) << 4); _mbc->writeByte(r.hl(), v); RESET_FLAG(ALL_FLAGS); if(!v) SET_FLAG(Z_FLAG); }
 
 /* Data processing */
 
@@ -188,12 +196,12 @@ void Cpu::ADDr_e() { unsigned short a = r.a; a += r.e; COMPUTE_CARRY_FLAGS_8(r.a
 void Cpu::ADDr_h() { unsigned short a = r.a; a += r.h; COMPUTE_CARRY_FLAGS_8(r.a, r.h, a); RESET_FLAG(N_FLAG); r.a = (uint8_t)a; }
 void Cpu::ADDr_l() { unsigned short a = r.a; a += r.l; COMPUTE_CARRY_FLAGS_8(r.a, r.l, a); RESET_FLAG(N_FLAG); r.a = (uint8_t)a; }
 void Cpu::ADDr_a() { unsigned short a = r.a; a += r.a; COMPUTE_CARRY_FLAGS_8(r.a, r.a, a); RESET_FLAG(N_FLAG); r.a = (uint8_t)a; }
-void Cpu::ADDHL() { unsigned short a = r.a; unsigned short v = _mbc->readByte(r.hl); a += v; COMPUTE_CARRY_FLAGS_8(r.a, v, a); RESET_FLAG(N_FLAG); r.a = (uint8_t)a; }
+void Cpu::ADDHL() { unsigned short a = r.a; unsigned short v = _mbc->readByte(r.hl()); a += v; COMPUTE_CARRY_FLAGS_8(r.a, v, a); RESET_FLAG(N_FLAG); r.a = (uint8_t)a; }
 void Cpu::ADDn() { unsigned short a = r.a; unsigned short v = _mbc->readByte(pc++); a += v; COMPUTE_CARRY_FLAGS_8(r.a, v, a); RESET_FLAG(N_FLAG); r.a = (uint8_t)a; }
-void Cpu::ADDHLBC() { unsigned int rhl = r.hl; rhl += r.bc; COMPUTE_CARRY_FLAGS_16(r.hl, r.bc, rhl); r.hl = (uint16_t)rhl; }
-void Cpu::ADDHLDE() { unsigned int rhl = r.hl; rhl += r.de; COMPUTE_CARRY_FLAGS_16(r.hl, r.de, rhl); r.hl = (uint16_t)rhl; }
-void Cpu::ADDHLHL() { unsigned int rhl = r.hl; rhl += r.hl; COMPUTE_CARRY_FLAGS_16(r.hl, r.hl, rhl); r.hl = (uint16_t)rhl; }
-void Cpu::ADDHLSP() { unsigned int rhl = r.hl; rhl += sp; COMPUTE_CARRY_FLAGS_16(r.hl, sp, rhl); r.hl = (uint16_t)rhl; }
+void Cpu::ADDHLBC() { unsigned int rhl = r.hl(); rhl += r.bc(); COMPUTE_CARRY_FLAGS_16(r.hl(), r.bc(), rhl); r.hl((uint16_t)rhl); }
+void Cpu::ADDHLDE() { unsigned int rhl = r.hl(); rhl += r.de(); COMPUTE_CARRY_FLAGS_16(r.hl(), r.de(), rhl); r.hl((uint16_t)rhl); }
+void Cpu::ADDHLHL() { unsigned int rhl = r.hl(); rhl += r.hl(); COMPUTE_CARRY_FLAGS_16(r.hl(), r.hl(), rhl); r.hl((uint16_t)rhl); }
+void Cpu::ADDHLSP() { unsigned int rhl = r.hl(); rhl += sp; COMPUTE_CARRY_FLAGS_16(r.hl(), sp, rhl); r.hl((uint16_t)rhl); }
 void Cpu::ADDSPn() { unsigned int rsp = sp; char v = (char)_mbc->readByte(pc++); rsp += v; COMPUTE_CARRY_FLAGS_16_8(sp, v, rsp); RESET_FLAG(Z_FLAG); sp = (uint16_t)rsp; }
 
 void Cpu::ADCr_b() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short sa = ca + r.b; COMPUTE_CARRY_FLAGS_8(r.a, r.b, sa); RESET_FLAG(N_FLAG); r.a = (uint8_t)sa; }
@@ -203,7 +211,7 @@ void Cpu::ADCr_e() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned sho
 void Cpu::ADCr_h() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short sa = ca + r.h; COMPUTE_CARRY_FLAGS_8(r.a, r.h, sa); RESET_FLAG(N_FLAG); r.a = (uint8_t)sa; }
 void Cpu::ADCr_l() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short sa = ca + r.l; COMPUTE_CARRY_FLAGS_8(r.a, r.l, sa); RESET_FLAG(N_FLAG); r.a = (uint8_t)sa; }
 void Cpu::ADCr_a() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short sa = ca + r.a; COMPUTE_CARRY_FLAGS_8(r.a, r.a, sa); RESET_FLAG(N_FLAG); r.a = (uint8_t)sa; }
-void Cpu::ADCHL() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short v = _mbc->readByte(r.hl); unsigned short sa = ca + v; COMPUTE_CARRY_FLAGS_8(r.a, v, sa); RESET_FLAG(N_FLAG); r.a = (uint8_t)sa; }
+void Cpu::ADCHL() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short v = _mbc->readByte(r.hl()); unsigned short sa = ca + v; COMPUTE_CARRY_FLAGS_8(r.a, v, sa); RESET_FLAG(N_FLAG); r.a = (uint8_t)sa; }
 void Cpu::ADCn() { unsigned short ca = r.a + ((r.f & 0x10) >> 4); unsigned short v = _mbc->readByte(pc++); unsigned short sa = ca + v; COMPUTE_CARRY_FLAGS_8(r.a, v, sa); RESET_FLAG(N_FLAG); r.a = (uint8_t)sa; }
 
 void Cpu::SUBr_b() { unsigned short a = r.a; a -= r.b; COMPUTE_CARRY_FLAGS_8(r.a, r.b, a); r.a = (uint8_t)a; SET_FLAG(N_FLAG); }
@@ -213,7 +221,7 @@ void Cpu::SUBr_e() { unsigned short a = r.a; a -= r.e; COMPUTE_CARRY_FLAGS_8(r.a
 void Cpu::SUBr_h() { unsigned short a = r.a; a -= r.h; COMPUTE_CARRY_FLAGS_8(r.a, r.h, a); r.a = (uint8_t)a; SET_FLAG(N_FLAG); }
 void Cpu::SUBr_l() { unsigned short a = r.a; a -= r.l; COMPUTE_CARRY_FLAGS_8(r.a, r.l, a); r.a = (uint8_t)a; SET_FLAG(N_FLAG); }
 void Cpu::SUBr_a() { unsigned short a = r.a; a -= r.a; COMPUTE_CARRY_FLAGS_8(r.a, r.a, a); r.a = (uint8_t)a; SET_FLAG(N_FLAG); }
-void Cpu::SUBHL() { unsigned short a = r.a; unsigned short v = _mbc->readByte(r.hl); a -= v; COMPUTE_CARRY_FLAGS_8(r.a, v, a); r.a = (uint8_t)a; SET_FLAG(N_FLAG); }
+void Cpu::SUBHL() { unsigned short a = r.a; unsigned short v = _mbc->readByte(r.hl()); a -= v; COMPUTE_CARRY_FLAGS_8(r.a, v, a); r.a = (uint8_t)a; SET_FLAG(N_FLAG); }
 void Cpu::SUBn() { unsigned short a = r.a; unsigned short v = _mbc->readByte(pc++); a -= v; COMPUTE_CARRY_FLAGS_8(r.a, v, a); r.a = (uint8_t)a; SET_FLAG(N_FLAG); }
 
 void Cpu::SBCr_b() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short sa = ca - r.b; COMPUTE_CARRY_FLAGS_8(r.a, r.b, sa); SET_FLAG(N_FLAG); r.a = (uint8_t)sa; }
@@ -223,7 +231,7 @@ void Cpu::SBCr_e() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned sho
 void Cpu::SBCr_h() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short sa = ca - r.h; COMPUTE_CARRY_FLAGS_8(r.a, r.h, sa); SET_FLAG(N_FLAG); r.a = (uint8_t)sa; }
 void Cpu::SBCr_l() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short sa = ca - r.l; COMPUTE_CARRY_FLAGS_8(r.a, r.l, sa); SET_FLAG(N_FLAG); r.a = (uint8_t)sa; }
 void Cpu::SBCr_a() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short sa = ca - r.a; COMPUTE_CARRY_FLAGS_8(r.a, r.a, sa); SET_FLAG(N_FLAG); r.a = (uint8_t)sa; }
-void Cpu::SBCHL() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short v = _mbc->readByte(r.hl); unsigned short sa = ca - v; COMPUTE_CARRY_FLAGS_8(r.a, v, sa); SET_FLAG(N_FLAG); r.a = (uint8_t)sa; }
+void Cpu::SBCHL() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short v = _mbc->readByte(r.hl()); unsigned short sa = ca - v; COMPUTE_CARRY_FLAGS_8(r.a, v, sa); SET_FLAG(N_FLAG); r.a = (uint8_t)sa; }
 void Cpu::SBCn() { unsigned short ca = r.a - ((r.f & 0x10) >> 4); unsigned short v = _mbc->readByte(pc++); unsigned short sa = ca - v; COMPUTE_CARRY_FLAGS_8(r.a, v, sa); SET_FLAG(N_FLAG); r.a = (uint8_t)sa; }
 
 void Cpu::CPr_b() { unsigned short a = r.a; unsigned short s = a - r.b; COMPUTE_CARRY_FLAGS_8(a, r.b, s); SET_FLAG(N_FLAG); }
@@ -233,7 +241,7 @@ void Cpu::CPr_e() { unsigned short a = r.a; unsigned short s = a - r.e; COMPUTE_
 void Cpu::CPr_h() { unsigned short a = r.a; unsigned short s = a - r.h; COMPUTE_CARRY_FLAGS_8(a, r.h, s); SET_FLAG(N_FLAG); }
 void Cpu::CPr_l() { unsigned short a = r.a; unsigned short s = a - r.l; COMPUTE_CARRY_FLAGS_8(a, r.l, s); SET_FLAG(N_FLAG); }
 void Cpu::CPr_a() { unsigned short a = r.a; unsigned short s = a - r.a; COMPUTE_CARRY_FLAGS_8(a, a, s); SET_FLAG(N_FLAG); }
-void Cpu::CPHL() { unsigned short a = r.a; unsigned short v = _mbc->readByte(r.hl); unsigned short s = a - v; COMPUTE_CARRY_FLAGS_8(a, v, s); SET_FLAG(N_FLAG); }
+void Cpu::CPHL() { unsigned short a = r.a; unsigned short v = _mbc->readByte(r.hl()); unsigned short s = a - v; COMPUTE_CARRY_FLAGS_8(a, v, s); SET_FLAG(N_FLAG); }
 void Cpu::CPn() { unsigned short a = r.a; unsigned short v = _mbc->readByte(pc++); unsigned short s = a - v; COMPUTE_CARRY_FLAGS_8(a, v, s); SET_FLAG(N_FLAG); }
 
 void Cpu::ANDr_b() { r.a &= r.b; RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG); SET_FLAG(H_FLAG); }
@@ -243,7 +251,7 @@ void Cpu::ANDr_e() { r.a &= r.e; RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG
 void Cpu::ANDr_h() { r.a &= r.h; RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG); SET_FLAG(H_FLAG); }
 void Cpu::ANDr_l() { r.a &= r.l; RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG); SET_FLAG(H_FLAG); }
 void Cpu::ANDr_a() { r.a &= r.a; RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG); SET_FLAG(H_FLAG); }
-void Cpu::ANDHL() { r.a &= _mbc->readByte(r.hl); RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG); SET_FLAG(H_FLAG); }
+void Cpu::ANDHL() { r.a &= _mbc->readByte(r.hl()); RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG); SET_FLAG(H_FLAG); }
 void Cpu::ANDn() { r.a &= _mbc->readByte(pc++); RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG); SET_FLAG(H_FLAG); }
 
 void Cpu::ORr_b() { r.a |= r.b; RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG); }
@@ -253,7 +261,7 @@ void Cpu::ORr_e() { r.a |= r.e; RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG)
 void Cpu::ORr_h() { r.a |= r.h; RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG); }
 void Cpu::ORr_l() { r.a |= r.l; RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG); }
 void Cpu::ORr_a() { r.a |= r.a; RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG); }
-void Cpu::ORHL() { r.a |= _mbc->readByte(r.hl); RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG); }
+void Cpu::ORHL() { r.a |= _mbc->readByte(r.hl()); RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG); }
 void Cpu::ORn() { r.a |= _mbc->readByte(pc++); RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG); }
 
 void Cpu::XORr_b() { r.a ^= r.b; RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG); }
@@ -263,7 +271,7 @@ void Cpu::XORr_e() { r.a ^= r.e; RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG
 void Cpu::XORr_h() { r.a ^= r.h; RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG); }
 void Cpu::XORr_l() { r.a ^= r.l; RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG); }
 void Cpu::XORr_a() { r.a ^= r.a; RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG); }
-void Cpu::XORHL() { r.a ^= _mbc->readByte(r.hl); RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG); }
+void Cpu::XORHL() { r.a ^= _mbc->readByte(r.hl()); RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG); }
 void Cpu::XORn() { r.a ^= _mbc->readByte(pc++); RESET_FLAG(ALL_FLAGS); if(!r.a) SET_FLAG(Z_FLAG); }
 
 void Cpu::INCr_b() { INC_REG(r.b); }
@@ -273,7 +281,7 @@ void Cpu::INCr_e() { INC_REG(r.e); }
 void Cpu::INCr_h() { INC_REG(r.h); }
 void Cpu::INCr_l() { INC_REG(r.l); }
 void Cpu::INCr_a() { INC_REG(r.a); }
-void Cpu::INCHLm() { auto mem = _mbc->readByte(r.hl); INC_REG(mem); _mbc->writeByte(r.hl, mem); }
+void Cpu::INCHLm() { auto mem = _mbc->readByte(r.hl()); INC_REG(mem); _mbc->writeByte(r.hl(), mem); }
 
 void Cpu::DECr_b() { DEC_REG(r.b); }
 void Cpu::DECr_c() { DEC_REG(r.c); }
@@ -282,16 +290,16 @@ void Cpu::DECr_e() { DEC_REG(r.e); }
 void Cpu::DECr_h() { DEC_REG(r.h); }
 void Cpu::DECr_l() { DEC_REG(r.l); }
 void Cpu::DECr_a() { DEC_REG(r.a); }
-void Cpu::DECHLm() { auto mem = _mbc->readByte(r.hl); DEC_REG(mem); _mbc->writeByte(r.hl, mem); }
+void Cpu::DECHLm() { auto mem = _mbc->readByte(r.hl()); DEC_REG(mem); _mbc->writeByte(r.hl(), mem); }
 
-void Cpu::INCBC() { r.bc++; }
-void Cpu::INCDE() { r.de++; }
-void Cpu::INCHL() { r.hl++; }
+void Cpu::INCBC() { r.bc(r.bc() + 1); }
+void Cpu::INCDE() { r.de(r.de() + 1); }
+void Cpu::INCHL() { r.hl(r.hl() + 1); }
 void Cpu::INCSP() { sp++; }
 
-void Cpu::DECBC() { r.bc--; }
-void Cpu::DECDE() { r.de--; }
-void Cpu::DECHL() { r.hl--; }
+void Cpu::DECBC() { r.bc(r.bc() - 1); }
+void Cpu::DECDE() { r.de(r.de() - 1); }
+void Cpu::DECHL() { r.hl(r.hl() - 1); }
 void Cpu::DECSP() { sp--; }
 
 void Cpu::DAA() {
@@ -332,7 +340,7 @@ void Cpu::BIT0e() { BIT_CHECK(r.e, 0); }
 void Cpu::BIT0h() { BIT_CHECK(r.h, 0); }
 void Cpu::BIT0l() { BIT_CHECK(r.l, 0); }
 void Cpu::BIT0a() { BIT_CHECK(r.a, 0); }
-void Cpu::BIT0m() { BIT_CHECK(_mbc->readByte(r.hl), 0); }
+void Cpu::BIT0m() { BIT_CHECK(_mbc->readByte(r.hl()), 0); }
 
 void Cpu::RES0b() { r.b &= (0xFF ^ (1 << 0)); }
 void Cpu::RES0c() { r.c &= (0xFF ^ (1 << 0)); }
@@ -341,7 +349,7 @@ void Cpu::RES0e() { r.e &= (0xFF ^ (1 << 0)); }
 void Cpu::RES0h() { r.h &= (0xFF ^ (1 << 0)); }
 void Cpu::RES0l() { r.l &= (0xFF ^ (1 << 0)); }
 void Cpu::RES0a() { r.a &= (0xFF ^ (1 << 0)); }
-void Cpu::RES0m() { auto mem = _mbc->readByte(r.hl); mem &= (0xFF ^ (1 << 0)); _mbc->writeByte(r.hl, mem); }
+void Cpu::RES0m() { auto mem = _mbc->readByte(r.hl()); mem &= (0xFF ^ (1 << 0)); _mbc->writeByte(r.hl(), mem); }
 
 void Cpu::SET0b() { r.b |= (1 << 0); }
 void Cpu::SET0c() { r.c |= (1 << 0); }
@@ -350,7 +358,7 @@ void Cpu::SET0e() { r.e |= (1 << 0); }
 void Cpu::SET0h() { r.h |= (1 << 0); }
 void Cpu::SET0l() { r.l |= (1 << 0); }
 void Cpu::SET0a() { r.a |= (1 << 0); }
-void Cpu::SET0m() { auto mem = _mbc->readByte(r.hl); mem |= (1 << 0); _mbc->writeByte(r.hl, mem); }
+void Cpu::SET0m() { auto mem = _mbc->readByte(r.hl()); mem |= (1 << 0); _mbc->writeByte(r.hl(), mem); }
 
 void Cpu::BIT1b() { BIT_CHECK(r.b, 1); }
 void Cpu::BIT1c() { BIT_CHECK(r.c, 1); }
@@ -359,7 +367,7 @@ void Cpu::BIT1e() { BIT_CHECK(r.e, 1); }
 void Cpu::BIT1h() { BIT_CHECK(r.h, 1); }
 void Cpu::BIT1l() { BIT_CHECK(r.l, 1); }
 void Cpu::BIT1a() { BIT_CHECK(r.a, 1); }
-void Cpu::BIT1m() { BIT_CHECK(_mbc->readByte(r.hl), 1); }
+void Cpu::BIT1m() { BIT_CHECK(_mbc->readByte(r.hl()), 1); }
 
 void Cpu::RES1b() { r.b &= (0xFF ^ (1 << 1)); }
 void Cpu::RES1c() { r.c &= (0xFF ^ (1 << 1)); }
@@ -368,7 +376,7 @@ void Cpu::RES1e() { r.e &= (0xFF ^ (1 << 1)); }
 void Cpu::RES1h() { r.h &= (0xFF ^ (1 << 1)); }
 void Cpu::RES1l() { r.l &= (0xFF ^ (1 << 1)); }
 void Cpu::RES1a() { r.a &= (0xFF ^ (1 << 1)); }
-void Cpu::RES1m() { auto mem = _mbc->readByte(r.hl); mem &= (0xFF ^ (1 << 1)); _mbc->writeByte(r.hl, mem); }
+void Cpu::RES1m() { auto mem = _mbc->readByte(r.hl()); mem &= (0xFF ^ (1 << 1)); _mbc->writeByte(r.hl(), mem); }
 
 void Cpu::SET1b() { r.b |= (1 << 1); }
 void Cpu::SET1c() { r.c |= (1 << 1); }
@@ -377,7 +385,7 @@ void Cpu::SET1e() { r.e |= (1 << 1); }
 void Cpu::SET1h() { r.h |= (1 << 1); }
 void Cpu::SET1l() { r.l |= (1 << 1); }
 void Cpu::SET1a() { r.a |= (1 << 1); }
-void Cpu::SET1m() { auto mem = _mbc->readByte(r.hl); mem |= (1 << 1); _mbc->writeByte(r.hl, mem); }
+void Cpu::SET1m() { auto mem = _mbc->readByte(r.hl()); mem |= (1 << 1); _mbc->writeByte(r.hl(), mem); }
 
 void Cpu::BIT2b() { BIT_CHECK(r.b, 2); }
 void Cpu::BIT2c() { BIT_CHECK(r.c, 2); }
@@ -386,7 +394,7 @@ void Cpu::BIT2e() { BIT_CHECK(r.e, 2); }
 void Cpu::BIT2h() { BIT_CHECK(r.h, 2); }
 void Cpu::BIT2l() { BIT_CHECK(r.l, 2); }
 void Cpu::BIT2a() { BIT_CHECK(r.a, 2); }
-void Cpu::BIT2m() { BIT_CHECK(_mbc->readByte(r.hl), 2); }
+void Cpu::BIT2m() { BIT_CHECK(_mbc->readByte(r.hl()), 2); }
 
 void Cpu::RES2b() { r.b &= (0xFF ^ (1 << 2)); }
 void Cpu::RES2c() { r.c &= (0xFF ^ (1 << 2)); }
@@ -395,7 +403,7 @@ void Cpu::RES2e() { r.e &= (0xFF ^ (1 << 2)); }
 void Cpu::RES2h() { r.h &= (0xFF ^ (1 << 2)); }
 void Cpu::RES2l() { r.l &= (0xFF ^ (1 << 2)); }
 void Cpu::RES2a() { r.a &= (0xFF ^ (1 << 2)); }
-void Cpu::RES2m() { auto mem = _mbc->readByte(r.hl); mem &= (0xFF ^ (1 << 2)); _mbc->writeByte(r.hl, mem); }
+void Cpu::RES2m() { auto mem = _mbc->readByte(r.hl()); mem &= (0xFF ^ (1 << 2)); _mbc->writeByte(r.hl(), mem); }
 
 void Cpu::SET2b() { r.b |= (1 << 2); }
 void Cpu::SET2c() { r.c |= (1 << 2); }
@@ -404,7 +412,7 @@ void Cpu::SET2e() { r.e |= (1 << 2); }
 void Cpu::SET2h() { r.h |= (1 << 2); }
 void Cpu::SET2l() { r.l |= (1 << 2); }
 void Cpu::SET2a() { r.a |= (1 << 2); }
-void Cpu::SET2m() { auto mem = _mbc->readByte(r.hl); mem |= (1 << 2); _mbc->writeByte(r.hl, mem); }
+void Cpu::SET2m() { auto mem = _mbc->readByte(r.hl()); mem |= (1 << 2); _mbc->writeByte(r.hl(), mem); }
 
 void Cpu::BIT3b() { BIT_CHECK(r.b, 3); }
 void Cpu::BIT3c() { BIT_CHECK(r.c, 3); }
@@ -413,7 +421,7 @@ void Cpu::BIT3e() { BIT_CHECK(r.e, 3); }
 void Cpu::BIT3h() { BIT_CHECK(r.h, 3); }
 void Cpu::BIT3l() { BIT_CHECK(r.l, 3); }
 void Cpu::BIT3a() { BIT_CHECK(r.a, 3); }
-void Cpu::BIT3m() { BIT_CHECK(_mbc->readByte(r.hl), 3); }
+void Cpu::BIT3m() { BIT_CHECK(_mbc->readByte(r.hl()), 3); }
 
 void Cpu::RES3b() { r.b &= (0xFF ^ (1 << 3)); }
 void Cpu::RES3c() { r.c &= (0xFF ^ (1 << 3)); }
@@ -422,7 +430,7 @@ void Cpu::RES3e() { r.e &= (0xFF ^ (1 << 3)); }
 void Cpu::RES3h() { r.h &= (0xFF ^ (1 << 3)); }
 void Cpu::RES3l() { r.l &= (0xFF ^ (1 << 3)); }
 void Cpu::RES3a() { r.a &= (0xFF ^ (1 << 3)); }
-void Cpu::RES3m() { auto mem = _mbc->readByte(r.hl); mem &= (0xFF ^ (1 << 3)); _mbc->writeByte(r.hl, mem); }
+void Cpu::RES3m() { auto mem = _mbc->readByte(r.hl()); mem &= (0xFF ^ (1 << 3)); _mbc->writeByte(r.hl(), mem); }
 
 void Cpu::SET3b() { r.b |= (1 << 3); }
 void Cpu::SET3c() { r.c |= (1 << 3); }
@@ -431,7 +439,7 @@ void Cpu::SET3e() { r.e |= (1 << 3); }
 void Cpu::SET3h() { r.h |= (1 << 3); }
 void Cpu::SET3l() { r.l |= (1 << 3); }
 void Cpu::SET3a() { r.a |= (1 << 3); }
-void Cpu::SET3m() { auto mem = _mbc->readByte(r.hl); mem |= (1 << 3); _mbc->writeByte(r.hl, mem); }
+void Cpu::SET3m() { auto mem = _mbc->readByte(r.hl()); mem |= (1 << 3); _mbc->writeByte(r.hl(), mem); }
 
 void Cpu::BIT4b() { BIT_CHECK(r.b, 4); }
 void Cpu::BIT4c() { BIT_CHECK(r.c, 4); }
@@ -440,7 +448,7 @@ void Cpu::BIT4e() { BIT_CHECK(r.e, 4); }
 void Cpu::BIT4h() { BIT_CHECK(r.h, 4); }
 void Cpu::BIT4l() { BIT_CHECK(r.l, 4); }
 void Cpu::BIT4a() { BIT_CHECK(r.a, 4); }
-void Cpu::BIT4m() { BIT_CHECK(_mbc->readByte(r.hl), 4); }
+void Cpu::BIT4m() { BIT_CHECK(_mbc->readByte(r.hl()), 4); }
 
 void Cpu::RES4b() { r.b &= (0xFF ^ (1 << 4)); }
 void Cpu::RES4c() { r.c &= (0xFF ^ (1 << 4)); }
@@ -449,7 +457,7 @@ void Cpu::RES4e() { r.e &= (0xFF ^ (1 << 4)); }
 void Cpu::RES4h() { r.h &= (0xFF ^ (1 << 4)); }
 void Cpu::RES4l() { r.l &= (0xFF ^ (1 << 4)); }
 void Cpu::RES4a() { r.a &= (0xFF ^ (1 << 4)); }
-void Cpu::RES4m() { auto mem = _mbc->readByte(r.hl); mem &= (0xFF ^ (1 << 4)); _mbc->writeByte(r.hl, mem); }
+void Cpu::RES4m() { auto mem = _mbc->readByte(r.hl()); mem &= (0xFF ^ (1 << 4)); _mbc->writeByte(r.hl(), mem); }
 
 void Cpu::SET4b() { r.b |= (1 << 4); }
 void Cpu::SET4c() { r.c |= (1 << 4); }
@@ -458,7 +466,7 @@ void Cpu::SET4e() { r.e |= (1 << 4); }
 void Cpu::SET4h() { r.h |= (1 << 4); }
 void Cpu::SET4l() { r.l |= (1 << 4); }
 void Cpu::SET4a() { r.a |= (1 << 4); }
-void Cpu::SET4m() { auto mem = _mbc->readByte(r.hl); mem |= (1 << 4); _mbc->writeByte(r.hl, mem); }
+void Cpu::SET4m() { auto mem = _mbc->readByte(r.hl()); mem |= (1 << 4); _mbc->writeByte(r.hl(), mem); }
 
 void Cpu::BIT5b() { BIT_CHECK(r.b, 5); }
 void Cpu::BIT5c() { BIT_CHECK(r.c, 5); }
@@ -467,7 +475,7 @@ void Cpu::BIT5e() { BIT_CHECK(r.e, 5); }
 void Cpu::BIT5h() { BIT_CHECK(r.h, 5); }
 void Cpu::BIT5l() { BIT_CHECK(r.l, 5); }
 void Cpu::BIT5a() { BIT_CHECK(r.a, 5); }
-void Cpu::BIT5m() { BIT_CHECK(_mbc->readByte(r.hl), 5); }
+void Cpu::BIT5m() { BIT_CHECK(_mbc->readByte(r.hl()), 5); }
 
 void Cpu::RES5b() { r.b &= (0xFF ^ (1 << 5)); }
 void Cpu::RES5c() { r.c &= (0xFF ^ (1 << 5)); }
@@ -476,7 +484,7 @@ void Cpu::RES5e() { r.e &= (0xFF ^ (1 << 5)); }
 void Cpu::RES5h() { r.h &= (0xFF ^ (1 << 5)); }
 void Cpu::RES5l() { r.l &= (0xFF ^ (1 << 5)); }
 void Cpu::RES5a() { r.a &= (0xFF ^ (1 << 5)); }
-void Cpu::RES5m() { auto mem = _mbc->readByte(r.hl); mem &= (0xFF ^ (1 << 5)); _mbc->writeByte(r.hl, mem); }
+void Cpu::RES5m() { auto mem = _mbc->readByte(r.hl()); mem &= (0xFF ^ (1 << 5)); _mbc->writeByte(r.hl(), mem); }
 
 void Cpu::SET5b() { r.b |= (1 << 5); }
 void Cpu::SET5c() { r.c |= (1 << 5); }
@@ -485,7 +493,7 @@ void Cpu::SET5e() { r.e |= (1 << 5); }
 void Cpu::SET5h() { r.h |= (1 << 5); }
 void Cpu::SET5l() { r.l |= (1 << 5); }
 void Cpu::SET5a() { r.a |= (1 << 5); }
-void Cpu::SET5m() { auto mem = _mbc->readByte(r.hl); mem |= (1 << 5); _mbc->writeByte(r.hl, mem); }
+void Cpu::SET5m() { auto mem = _mbc->readByte(r.hl()); mem |= (1 << 5); _mbc->writeByte(r.hl(), mem); }
 
 void Cpu::BIT6b() { BIT_CHECK(r.b, 6); }
 void Cpu::BIT6c() { BIT_CHECK(r.c, 6); }
@@ -494,7 +502,7 @@ void Cpu::BIT6e() { BIT_CHECK(r.e, 6); }
 void Cpu::BIT6h() { BIT_CHECK(r.h, 6); }
 void Cpu::BIT6l() { BIT_CHECK(r.l, 6); }
 void Cpu::BIT6a() { BIT_CHECK(r.a, 6); }
-void Cpu::BIT6m() { BIT_CHECK(_mbc->readByte(r.hl), 6); }
+void Cpu::BIT6m() { BIT_CHECK(_mbc->readByte(r.hl()), 6); }
 
 void Cpu::RES6b() { r.b &= (0xFF ^ (1 << 6)); }
 void Cpu::RES6c() { r.c &= (0xFF ^ (1 << 6)); }
@@ -503,7 +511,7 @@ void Cpu::RES6e() { r.e &= (0xFF ^ (1 << 6)); }
 void Cpu::RES6h() { r.h &= (0xFF ^ (1 << 6)); }
 void Cpu::RES6l() { r.l &= (0xFF ^ (1 << 6)); }
 void Cpu::RES6a() { r.a &= (0xFF ^ (1 << 6)); }
-void Cpu::RES6m() { auto mem = _mbc->readByte(r.hl); mem &= (0xFF ^ (1 << 6)); _mbc->writeByte(r.hl, mem); }
+void Cpu::RES6m() { auto mem = _mbc->readByte(r.hl()); mem &= (0xFF ^ (1 << 6)); _mbc->writeByte(r.hl(), mem); }
 
 void Cpu::SET6b() { r.b |= (1 << 6); }
 void Cpu::SET6c() { r.c |= (1 << 6); }
@@ -512,7 +520,7 @@ void Cpu::SET6e() { r.e |= (1 << 6); }
 void Cpu::SET6h() { r.h |= (1 << 6); }
 void Cpu::SET6l() { r.l |= (1 << 6); }
 void Cpu::SET6a() { r.a |= (1 << 6); }
-void Cpu::SET6m() { auto mem = _mbc->readByte(r.hl); mem |= (1 << 6); _mbc->writeByte(r.hl, mem); }
+void Cpu::SET6m() { auto mem = _mbc->readByte(r.hl()); mem |= (1 << 6); _mbc->writeByte(r.hl(), mem); }
 
 void Cpu::BIT7b() { BIT_CHECK(r.b, 7); }
 void Cpu::BIT7c() { BIT_CHECK(r.c, 7); }
@@ -521,7 +529,7 @@ void Cpu::BIT7e() { BIT_CHECK(r.e, 7); }
 void Cpu::BIT7h() { BIT_CHECK(r.h, 7); }
 void Cpu::BIT7l() { BIT_CHECK(r.l, 7); }
 void Cpu::BIT7a() { BIT_CHECK(r.a, 7); }
-void Cpu::BIT7m() { BIT_CHECK(_mbc->readByte(r.hl), 7); }
+void Cpu::BIT7m() { BIT_CHECK(_mbc->readByte(r.hl()), 7); }
 
 void Cpu::RES7b() { r.b &= (0xFF ^ (1 << 7)); }
 void Cpu::RES7c() { r.c &= (0xFF ^ (1 << 7)); }
@@ -530,7 +538,7 @@ void Cpu::RES7e() { r.e &= (0xFF ^ (1 << 7)); }
 void Cpu::RES7h() { r.h &= (0xFF ^ (1 << 7)); }
 void Cpu::RES7l() { r.l &= (0xFF ^ (1 << 7)); }
 void Cpu::RES7a() { r.a &= (0xFF ^ (1 << 7)); }
-void Cpu::RES7m() { auto mem = _mbc->readByte(r.hl); mem &= (0xFF ^ (1 << 7)); _mbc->writeByte(r.hl, mem); }
+void Cpu::RES7m() { auto mem = _mbc->readByte(r.hl()); mem &= (0xFF ^ (1 << 7)); _mbc->writeByte(r.hl(), mem); }
 
 void Cpu::SET7b() { r.b |= (1 << 7); }
 void Cpu::SET7c() { r.c |= (1 << 7); }
@@ -539,7 +547,7 @@ void Cpu::SET7e() { r.e |= (1 << 7); }
 void Cpu::SET7h() { r.h |= (1 << 7); }
 void Cpu::SET7l() { r.l |= (1 << 7); }
 void Cpu::SET7a() { r.a |= (1 << 7); }
-void Cpu::SET7m() { auto mem = _mbc->readByte(r.hl); mem |= (1 << 7); _mbc->writeByte(r.hl, mem); }
+void Cpu::SET7m() { auto mem = _mbc->readByte(r.hl()); mem |= (1 << 7); _mbc->writeByte(r.hl(), mem); }
 
 void Cpu::RLA() { ROTATE_LEFT_THROUGH_CARRY(r.a); }
 void Cpu::RLCA() { ROTATE_LEFT(r.a); }
@@ -553,7 +561,7 @@ void Cpu::RLr_e() { ROTATE_LEFT_THROUGH_CARRY(r.e); if (!r.e) SET_FLAG(Z_FLAG); 
 void Cpu::RLr_h() { ROTATE_LEFT_THROUGH_CARRY(r.h); if (!r.h) SET_FLAG(Z_FLAG); }
 void Cpu::RLr_l() { ROTATE_LEFT_THROUGH_CARRY(r.l); if (!r.l) SET_FLAG(Z_FLAG); }
 void Cpu::RLr_a() { ROTATE_LEFT_THROUGH_CARRY(r.a); if (!r.a) SET_FLAG(Z_FLAG); }
-void Cpu::RLHL() { unsigned char v = _mbc->readByte(r.hl); ROTATE_LEFT_THROUGH_CARRY(v); if (!v) SET_FLAG(Z_FLAG); _mbc->writeByte(r.hl, v); }
+void Cpu::RLHL() { unsigned char v = _mbc->readByte(r.hl()); ROTATE_LEFT_THROUGH_CARRY(v); if (!v) SET_FLAG(Z_FLAG); _mbc->writeByte(r.hl(), v); }
 
 void Cpu::RLCr_b() { ROTATE_LEFT(r.b); if (!r.b) SET_FLAG(Z_FLAG); }
 void Cpu::RLCr_c() { ROTATE_LEFT(r.c); if (!r.c) SET_FLAG(Z_FLAG); }
@@ -562,7 +570,7 @@ void Cpu::RLCr_e() { ROTATE_LEFT(r.e); if (!r.e) SET_FLAG(Z_FLAG); }
 void Cpu::RLCr_h() { ROTATE_LEFT(r.h); if (!r.h) SET_FLAG(Z_FLAG); }
 void Cpu::RLCr_l() { ROTATE_LEFT(r.l); if (!r.l) SET_FLAG(Z_FLAG); }
 void Cpu::RLCr_a() { ROTATE_LEFT(r.a); if (!r.a) SET_FLAG(Z_FLAG); }
-void Cpu::RLCHL() { unsigned char v = _mbc->readByte(r.hl); ROTATE_LEFT(v); if (!v) SET_FLAG(Z_FLAG); _mbc->writeByte(r.hl, v); }
+void Cpu::RLCHL() { unsigned char v = _mbc->readByte(r.hl()); ROTATE_LEFT(v); if (!v) SET_FLAG(Z_FLAG); _mbc->writeByte(r.hl(), v); }
 
 void Cpu::RRr_b() { ROTATE_RIGHT_THROUGH_CARRY(r.b); if (!r.b) SET_FLAG(Z_FLAG); }
 void Cpu::RRr_c() { ROTATE_RIGHT_THROUGH_CARRY(r.c); if (!r.c) SET_FLAG(Z_FLAG); }
@@ -571,7 +579,7 @@ void Cpu::RRr_e() { ROTATE_RIGHT_THROUGH_CARRY(r.e); if (!r.e) SET_FLAG(Z_FLAG);
 void Cpu::RRr_h() { ROTATE_RIGHT_THROUGH_CARRY(r.h); if (!r.h) SET_FLAG(Z_FLAG); }
 void Cpu::RRr_l() { ROTATE_RIGHT_THROUGH_CARRY(r.l); if (!r.l) SET_FLAG(Z_FLAG); }
 void Cpu::RRr_a() { ROTATE_RIGHT_THROUGH_CARRY(r.a); if (!r.a) SET_FLAG(Z_FLAG); }
-void Cpu::RRHL() { unsigned char v = _mbc->readByte(r.hl); ROTATE_RIGHT_THROUGH_CARRY(v); if (!v) SET_FLAG(Z_FLAG); _mbc->writeByte(r.hl, v); }
+void Cpu::RRHL() { unsigned char v = _mbc->readByte(r.hl()); ROTATE_RIGHT_THROUGH_CARRY(v); if (!v) SET_FLAG(Z_FLAG); _mbc->writeByte(r.hl(), v); }
 
 void Cpu::RRCr_b() { ROTATE_RIGHT(r.b); if (!r.b) SET_FLAG(Z_FLAG); }
 void Cpu::RRCr_c() { ROTATE_RIGHT(r.c); if (!r.c) SET_FLAG(Z_FLAG); }
@@ -580,7 +588,7 @@ void Cpu::RRCr_e() { ROTATE_RIGHT(r.e); if (!r.e) SET_FLAG(Z_FLAG); }
 void Cpu::RRCr_h() { ROTATE_RIGHT(r.h); if (!r.h) SET_FLAG(Z_FLAG); }
 void Cpu::RRCr_l() { ROTATE_RIGHT(r.l); if (!r.l) SET_FLAG(Z_FLAG); }
 void Cpu::RRCr_a() { ROTATE_RIGHT(r.a); if (!r.a) SET_FLAG(Z_FLAG); }
-void Cpu::RRCHL() { unsigned char v = _mbc->readByte(r.hl); ROTATE_RIGHT(v); if (!v) SET_FLAG(Z_FLAG); _mbc->writeByte(r.hl, v); }
+void Cpu::RRCHL() { unsigned char v = _mbc->readByte(r.hl()); ROTATE_RIGHT(v); if (!v) SET_FLAG(Z_FLAG); _mbc->writeByte(r.hl(), v); }
 
 void Cpu::SLAr_b() { r.f = (r.b & 0x80) >> 3; r.b <<= 1; if(!r.b) SET_FLAG(Z_FLAG); }
 void Cpu::SLAr_c() { r.f = (r.c & 0x80) >> 3; r.c <<= 1; if(!r.c) SET_FLAG(Z_FLAG); }
@@ -589,7 +597,7 @@ void Cpu::SLAr_e() { r.f = (r.e & 0x80) >> 3; r.e <<= 1; if(!r.e) SET_FLAG(Z_FLA
 void Cpu::SLAr_h() { r.f = (r.h & 0x80) >> 3; r.h <<= 1; if(!r.h) SET_FLAG(Z_FLAG); }
 void Cpu::SLAr_l() { r.f = (r.l & 0x80) >> 3; r.l <<= 1; if(!r.l) SET_FLAG(Z_FLAG); }
 void Cpu::SLAr_a() { r.f = (r.a & 0x80) >> 3; r.a <<= 1; if(!r.a) SET_FLAG(Z_FLAG); }
-void Cpu::SLAHL() { auto v = _mbc->readByte(r.hl); r.f = (v & 0x80) >> 3; v <<= 1; _mbc->writeByte(r.hl, v); if(!v) SET_FLAG(Z_FLAG); }
+void Cpu::SLAHL() { auto v = _mbc->readByte(r.hl()); r.f = (v & 0x80) >> 3; v <<= 1; _mbc->writeByte(r.hl(), v); if (!v) SET_FLAG(Z_FLAG); }
 
 void Cpu::SRAr_b() { r.f = (r.b & 0x01) << 4; r.b = (r.b >> 1) | (r.b & 0x80); if(!r.b) SET_FLAG(Z_FLAG); }
 void Cpu::SRAr_c() { r.f = (r.c & 0x01) << 4; r.c = (r.c >> 1) | (r.c & 0x80); if(!r.c) SET_FLAG(Z_FLAG); }
@@ -598,7 +606,7 @@ void Cpu::SRAr_e() { r.f = (r.e & 0x01) << 4; r.e = (r.e >> 1) | (r.e & 0x80); i
 void Cpu::SRAr_h() { r.f = (r.h & 0x01) << 4; r.h = (r.h >> 1) | (r.h & 0x80); if(!r.h) SET_FLAG(Z_FLAG); }
 void Cpu::SRAr_l() { r.f = (r.l & 0x01) << 4; r.l = (r.l >> 1) | (r.l & 0x80); if(!r.l) SET_FLAG(Z_FLAG); }
 void Cpu::SRAr_a() { r.f = (r.a & 0x01) << 4; r.a = (r.a >> 1) | (r.a & 0x80); if(!r.a) SET_FLAG(Z_FLAG); }
-void Cpu::SRAHL() { auto v = _mbc->readByte(r.hl); r.f = (v & 0x01) << 4; v = (v >> 1) | (v & 0x80); _mbc->writeByte(r.hl, v); if(!v) SET_FLAG(Z_FLAG); }
+void Cpu::SRAHL() { auto v = _mbc->readByte(r.hl()); r.f = (v & 0x01) << 4; v = (v >> 1) | (v & 0x80); _mbc->writeByte(r.hl(), v); if (!v) SET_FLAG(Z_FLAG); }
 
 void Cpu::SRLr_b() { r.f = (r.b & 0x01) << 4; r.b >>= 1; if(!r.b) SET_FLAG(Z_FLAG); }
 void Cpu::SRLr_c() { r.f = (r.c & 0x01) << 4; r.c >>= 1; if(!r.c) SET_FLAG(Z_FLAG); }
@@ -607,7 +615,7 @@ void Cpu::SRLr_e() { r.f = (r.e & 0x01) << 4; r.e >>= 1; if(!r.e) SET_FLAG(Z_FLA
 void Cpu::SRLr_h() { r.f = (r.h & 0x01) << 4; r.h >>= 1; if(!r.h) SET_FLAG(Z_FLAG); }
 void Cpu::SRLr_l() { r.f = (r.l & 0x01) << 4; r.l >>= 1; if(!r.l) SET_FLAG(Z_FLAG); }
 void Cpu::SRLr_a() { r.f = (r.a & 0x01) << 4; r.a >>= 1; if(!r.a) SET_FLAG(Z_FLAG); }
-void Cpu::SRLHL() { auto v = _mbc->readByte(r.hl); r.f = (v & 0x01) << 4; v >>= 1; _mbc->writeByte(r.hl, v); if(!v) SET_FLAG(Z_FLAG); }
+void Cpu::SRLHL() { auto v = _mbc->readByte(r.hl()); r.f = (v & 0x01) << 4; v >>= 1; _mbc->writeByte(r.hl(), v); if (!v) SET_FLAG(Z_FLAG); }
 
 void Cpu::CPL() { r.a = ~r.a; SET_FLAG(N_FLAG | H_FLAG); }
 void Cpu::CCF() { r.f ^= C_FLAG; RESET_FLAG(N_FLAG | H_FLAG); }
@@ -615,21 +623,21 @@ void Cpu::SCF() { SET_FLAG(C_FLAG); RESET_FLAG(N_FLAG | H_FLAG); }
 
 /* Pushs and pops */
 
-void Cpu::PUSHBC() { sp -= 2; _mbc->writeShort(sp, r.bc); }
-void Cpu::PUSHDE() { sp -= 2; _mbc->writeShort(sp, r.de); }
-void Cpu::PUSHHL() { sp -= 2; _mbc->writeShort(sp, r.hl); }
-void Cpu::PUSHAF() { sp -= 2; _mbc->writeShort(sp, r.af); }
+void Cpu::PUSHBC() { sp -= 2; _mbc->writeShort(sp, r.bc()); }
+void Cpu::PUSHDE() { sp -= 2; _mbc->writeShort(sp, r.de()); }
+void Cpu::PUSHHL() { sp -= 2; _mbc->writeShort(sp, r.hl()); }
+void Cpu::PUSHAF() { sp -= 2; _mbc->writeShort(sp, r.af()); }
 
-void Cpu::POPBC() { r.bc = _mbc->readShort(sp); sp+=2; }
-void Cpu::POPDE() { r.de = _mbc->readShort(sp); sp+=2; }
-void Cpu::POPHL() { r.hl = _mbc->readShort(sp); sp+=2; }
-void Cpu::POPAF() { r.af = 0xFFF0 & _mbc->readShort(sp); sp+=2; }
+void Cpu::POPBC() { r.bc(_mbc->readShort(sp)); sp+=2; }
+void Cpu::POPDE() { r.de(_mbc->readShort(sp)); sp+=2; }
+void Cpu::POPHL() { r.hl(_mbc->readShort(sp)); sp+=2; }
+void Cpu::POPAF() { r.af(0xFFF0 & _mbc->readShort(sp)); sp+=2; }
 
 
 /* Jumps */
 
 void Cpu::JPnn() { auto nn = _mbc->readShort(pc++); pc++; pc = nn; }
-void Cpu::JPHL() { pc = r.hl; }
+void Cpu::JPHL() { pc = r.hl(); }
 void Cpu::JPNZnn() { auto nn = _mbc->readShort(pc++); pc++; if (!(r.f & Z_FLAG)) { pc = nn; cycles = 1; } }
 void Cpu::JPZnn() { auto nn = _mbc->readShort(pc++); pc++; if (r.f & Z_FLAG) { pc = nn; cycles = 1; } }
 void Cpu::JPNCnn() { auto nn = _mbc->readShort(pc++); pc++; if (!(r.f & C_FLAG)) { pc = nn; cycles = 1; } }

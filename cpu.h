@@ -21,51 +21,66 @@
 
 class Cpu {
 private:
-    using z80Reg = union {
-        uint16_t w;
-        struct {
-            uint8_t l;
-            uint8_t h;
-        } b;
-    };
+	struct Registers {
+		Registers()
+			: f(0), a(0)
+			, c(0), b(0)
+			, e(0), d(0)
+			, l(0), h(0)
+		{}
 
-	using Registers = struct {
-		struct {
-			union {
-				struct {
-					uint8_t f;
-					uint8_t a;
-				};
-				uint16_t af;
-			};
-		};
-		struct {
-			union {
-				struct {
-					uint8_t c;
-					uint8_t b;
-				};
-				uint16_t bc;
-			};
-		};
-		struct {
-			union {
-				struct {
-					uint8_t e;
-					uint8_t d;
-				};
-				uint16_t de;
-			};
-		};
-		struct {
-			union {
-				struct {
-					uint8_t l;
-					uint8_t h;
-				};
-				uint16_t hl;
-			};
-		};
+		uint8_t f;
+		uint8_t a;
+		uint8_t c;
+		uint8_t b;
+		uint8_t e;
+		uint8_t d;
+		uint8_t l;
+		uint8_t h;
+
+		uint16_t af()
+		{
+			return (a << 8) | f;
+		}
+
+		void af(uint16_t r)
+		{
+			a = r >> 8;
+			f = r & 0xff;
+		}
+
+		uint16_t bc()
+		{
+			return (b << 8) | c;
+		}
+
+		void bc(uint16_t r)
+		{
+			b = r >> 8;
+			c = r & 0xff;
+		}
+
+		uint16_t de()
+		{
+			return (d << 8) | e;
+		}
+
+		void de(uint16_t r)
+		{
+			d = r >> 8;
+			e = r & 0xff;
+		}
+
+		uint16_t hl()
+		{
+			return (h << 8) | l;
+		}
+
+		void hl(uint16_t r)
+		{
+			h = r >> 8;
+			l = r & 0xff;
+		}
 	};
 
 public:
@@ -76,13 +91,7 @@ public:
 		, _timer(timer)
         , pc(useBios ? 0x0 : 0x0100)
         , sp(0)
-    {
-		r.af = 0;
-		r.bc = 0;
-		r.de = 0;
-		r.hl = 0;
-
-    }
+    {}
 
     void execute()
     {
