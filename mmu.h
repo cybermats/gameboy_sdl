@@ -6,6 +6,7 @@
 #include "gbu-timer.h"
 #include "joypad.h"
 #include "gbu-serial.h"
+#include "gb-audio.h"
 #include <vector>
 
 class Gpu;
@@ -13,7 +14,7 @@ class Gpu;
 class MMU
 {
 public:
-    MMU(IMBC* mbc, Interrupts* interrupts, GbuTimer* timer, Joypad* joypad, Serial* serial, bool useBios);
+    MMU(IMBC* mbc, Interrupts* interrupts, GbuTimer* timer, Joypad* joypad, Serial* serial, Audio* audio, bool useBios);
 
     unsigned char readByte(unsigned short addr);
 
@@ -47,6 +48,7 @@ private:
 	GbuTimer* _timer;
 	Joypad* _joypad;
 	Serial* _serial;
+	Audio* _audio;
 
     const unsigned char* _romBank0;
     const unsigned char* _romBankN;

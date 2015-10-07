@@ -25,6 +25,7 @@
   <ItemGroup>
     <ClInclude Include="cartridge.h" />
     <ClInclude Include="cpu.h" />
+    <ClInclude Include="gb-audio.h" />
     <ClInclude Include="gbu-serial.h" />
     <ClInclude Include="gbu-timer.h" />
     <ClInclude Include="gbu.h" />

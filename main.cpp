@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
 	try
 	{
 		std::cout << "Reading " << argv[1] << "..." << std::endl;
-		Gbu gbu(argv[1], false, false);
+		Gbu gbu(argv[1], true, false);
 		GbuSdlWrapper wrapper(&gbu);
 		wrapper.mainloop();
 	}

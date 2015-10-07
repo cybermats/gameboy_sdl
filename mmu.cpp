@@ -1,12 +1,13 @@
 #include "mmu.h"
 #include "gpu.h"
 
-MMU::MMU(IMBC* mbc, Interrupts* interrupts, GbuTimer* timer, Joypad* joypad, Serial* serial, bool useBios)
+MMU::MMU(IMBC* mbc, Interrupts* interrupts, GbuTimer* timer, Joypad* joypad, Serial* serial, Audio* audio, bool useBios)
         : _mbc(mbc)
 		, _interrupts(interrupts)
 		, _timer(timer)
 		, _joypad(joypad)
 		, _serial(serial)
+		, _audio(audio)
         , _gpu(nullptr)
         , _romBank0(nullptr)
         , _romBankN(nullptr)
@@ -190,7 +191,7 @@ unsigned char MMU::readIO(unsigned short addr)
     if(addr == 0xFF0F) // Interrupt flags
         return _interrupts->readIF(); // TODO
     if(addr < 0xFF40) // Sound
-        return 0; // Ignore?
+        return _audio->read(addr); // Ignore?
     if(addr < 0xFF4C) {
         assert(_gpu);
         return _gpu->readIO(addr);
@@ -217,8 +218,10 @@ void MMU::writeIO(unsigned short addr, unsigned char value)
 		_interrupts->writeIF(value);
         return; // TODO
     }
-    if(addr < 0xFF40) // Sound
-        return; // Ignore?
+	if (addr < 0xFF40) { // Sound
+		_audio->write(addr, value);
+		return; // Ignore?
+	}
     if(addr < 0xFF4C) {
         assert(_gpu);
         _gpu->writeIO(addr, value);

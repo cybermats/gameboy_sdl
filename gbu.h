@@ -9,6 +9,7 @@
 #include "gbu-timer.h"
 #include "joypad.h"
 #include "gbu-serial.h"
+#include "gb-audio.h"
 
 #include <memory>
 #include <iostream>
@@ -30,8 +31,10 @@ public:
 		_timer = std::make_unique<GbuTimer>(_interrupts.get());
 		_joypad = std::make_unique<Joypad>(_interrupts.get());
 		_serial = std::make_unique<Serial>();
+		_audio = std::make_unique<Audio>();
 
-        _mmu = std::unique_ptr<MMU>(new MMU(_mbc.get(), _interrupts.get(), _timer.get(), _joypad.get(), _serial.get(), useBios));
+
+        _mmu = std::unique_ptr<MMU>(new MMU(_mbc.get(), _interrupts.get(), _timer.get(), _joypad.get(), _serial.get(), _audio.get(), useBios));
         _gpu = std::unique_ptr<Gpu>(new Gpu(_mmu.get(), _interrupts.get()));
         _mmu->setGpu(_gpu.get());
         _cpu = std::unique_ptr<Cpu>(new Cpu(_mmu.get(), _interrupts.get(), _timer.get(), useBios));
@@ -155,6 +158,7 @@ private:
 	std::unique_ptr<GbuTimer> _timer;
 	std::unique_ptr<Joypad> _joypad;
 	std::unique_ptr<Serial> _serial;
+	std::unique_ptr<Audio> _audio;
 	std::ofstream _callstack_stream;
 	bool _print_callstack;
 };
