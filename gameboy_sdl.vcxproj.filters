@@ -13,8 +13,23 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="gb_apu">
+      <UniqueIdentifier>{5b0ee7bd-3739-45d1-be1d-a600b3b3cc81}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="gb_apu\Blip_Buffer.cpp">
+      <Filter>gb_apu</Filter>
+    </ClCompile>
+    <ClCompile Include="gb_apu\Gb_Apu.cpp">
+      <Filter>gb_apu</Filter>
+    </ClCompile>
+    <ClCompile Include="gb_apu\Gb_Oscs.cpp">
+      <Filter>gb_apu</Filter>
+    </ClCompile>
+    <ClCompile Include="gb_apu\Multi_Buffer.cpp">
+      <Filter>gb_apu</Filter>
+    </ClCompile>
     <ClCompile Include="cartridge.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -25,6 +40,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cpu_maps.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gbu_sdl_wrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gbu-timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gpu.cpp">
@@ -39,18 +60,39 @@
     <ClCompile Include="sdl_wrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gbu-timer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gbu_sdl_wrapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="gb_apu\blargg_common.h">
+      <Filter>gb_apu</Filter>
+    </ClInclude>
+    <ClInclude Include="gb_apu\blargg_source.h">
+      <Filter>gb_apu</Filter>
+    </ClInclude>
+    <ClInclude Include="gb_apu\Blip_Buffer.h">
+      <Filter>gb_apu</Filter>
+    </ClInclude>
+    <ClInclude Include="gb_apu\Blip_Synth.h">
+      <Filter>gb_apu</Filter>
+    </ClInclude>
+    <ClInclude Include="gb_apu\Gb_Apu.h">
+      <Filter>gb_apu</Filter>
+    </ClInclude>
+    <ClInclude Include="gb_apu\Gb_Oscs.h">
+      <Filter>gb_apu</Filter>
+    </ClInclude>
+    <ClInclude Include="gb_apu\Multi_Buffer.h">
+      <Filter>gb_apu</Filter>
+    </ClInclude>
     <ClInclude Include="cartridge.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cpu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gb_exception.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gb-audio.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gbu.h">
@@ -59,7 +101,19 @@
     <ClInclude Include="gbu_sdl_wrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="gbu-serial.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gbu-timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="gpu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interrupts.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="joypad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mbc.h">
@@ -69,24 +123,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="sdl_wrapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="interrupts.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gbu-timer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="joypad.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gb_exception.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gbu-serial.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gb-audio.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
