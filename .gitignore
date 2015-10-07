@@ -216,3 +216,5 @@ FakesAssemblies/
 **/*.Server/ModelManifest.xml
 _Pvt_Extensions
 callstack.txt
+memory.txt
+serialstream.txt
