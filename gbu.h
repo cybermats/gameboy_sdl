@@ -68,14 +68,25 @@ public:
 				printStep();
 			_cpu->execute();
             _gpu->checkline(_cpu->cycles);
+			_audio->tick(_cpu->cycles);
 //			_timer->tick(_cpu->m);
         }
+		_audio->end_frame();
     }
 
     std::vector<uint8_t>& getBuffer()
     {
         return _gpu->getFrame();
     }
+
+	bool getAudio(std::vector<short>& buffer)
+	{
+		if (buffer.size() > _audio->samples_available())
+			return false;
+
+		_audio->read_samples(&buffer[0], buffer.size());
+		return true;
+	}
 
 	void printStep()
 	{

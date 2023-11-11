@@ -54,6 +54,7 @@ public:
             std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
             return false;
         }
+		atexit(SDL_Quit);
 
         if(SDL_CreateWindowAndRenderer(
                 _width,

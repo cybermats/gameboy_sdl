@@ -1,12 +1,15 @@
 #include "gbu_sdl_wrapper.h"
 #include "gbu.h"
 #include "joypad.h"
+#include "gb-audio.h"
 #include <cassert>
 
 GbuSdlWrapper::GbuSdlWrapper(Gbu* gbu)
 	: SDL_Wrapper(160 * 4, 144 * 4, 160, 144, 15)
 	, _gbu(gbu)
+	, _sound_buffer(2048)
 {
+	_sound.start(44100, 2);
 }
 
 bool GbuSdlWrapper::Display(std::vector<uint32_t> &buffer) {
@@ -21,6 +24,10 @@ bool GbuSdlWrapper::Display(std::vector<uint32_t> &buffer) {
 		unsigned char b = (unsigned char)(c*(180.0 / 255));
 		buffer[i] = b | g << 8 | r << 16 | 0xff << 24;
 	}
+
+	if (_gbu->getAudio(_sound_buffer))
+		_sound.write(&_sound_buffer[0], _sound_buffer.size());
+
 	return true;
 }
 

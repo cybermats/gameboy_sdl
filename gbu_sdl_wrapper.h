@@ -1,6 +1,7 @@
 #pragma once
 
 #include "sdl_wrapper.h"
+#include "Sound_Queue.h"
 #include <SDL_keyboard.h>
 
 class Gbu;
@@ -15,5 +16,7 @@ private:
 	virtual void KeyUp(SDL_Keysym keysym) override;
 
     Gbu* _gbu;
+	Sound_Queue _sound;
+	std::vector<short> _sound_buffer;
 };
 
